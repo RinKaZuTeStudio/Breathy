@@ -1,6 +1,8 @@
 package com.breathy.data.models
 
 import android.os.Parcel
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.PropertyName
 import kotlinx.parcelize.Parceler
