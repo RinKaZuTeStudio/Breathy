@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>دليل بناء تطبيق Breathy عبر Codemagic من التابلت</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700;800&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #ffffff;
+    font-family: 'Noto Sans Arabic', 'Noto Naskh Arabic', sans-serif;
+    color: #1a1a2e;
+    direction: rtl;
+    line-height: 1.8;
+  }
+
+  .page {
+    width: 794px;
+    min-height: 1123px;
+    padding: 60px 55px;
+    background: #ffffff;
+    position: relative;
+    page-break-after: always;
+  }
+
+  /* Cover Page */
+  .cover {
+    background: linear-gradient(135deg, #0f3460 0%, #16213e 50%, #1a1a2e 100%);
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 80px 60px;
+    min-height: 1123px;
+  }
+
+  .cover .logo-circle {
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+    border: 3px solid rgba(255,255,255,0.25);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 30px;
+    font-size: 48px;
+  }
+
+  .cover h1 {
+    font-size: 42px;
+    font-weight: 800;
+    margin: 0 0 15px;
+    letter-spacing: -0.5px;
+    line-height: 1.4;
+  }
+
+  .cover .subtitle {
+    font-size: 22px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.8);
+    margin-bottom: 40px;
+    line-height: 1.6;
+  }
+
+  .cover .divider {
+    width: 80px; height: 3px;
+    background: #e94560;
+    margin: 0 auto 30px;
+    border-radius: 2px;
+  }
+
+  .cover .meta {
+    font-size: 15px;
+    color: rgba(255,255,255,0.6);
+    line-height: 2;
+  }
+
+  /* Section Styles */
+  h2 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #0f3460;
+    margin: 35px 0 18px;
+    padding-bottom: 10px;
+    border-bottom: 2.5px solid #e94560;
+    display: inline-block;
+  }
+
+  h3 {
+    font-size: 19px;
+    font-weight: 700;
+    color: #16213e;
+    margin: 25px 0 12px;
+  }
+
+  h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #0f3460;
+    margin: 18px 0 8px;
+  }
+
+  p {
+    font-size: 14.5px;
+    line-height: 2;
+    margin: 0 0 12px;
+    color: #2d2d44;
+  }
+
+  .step-box {
+    background: #f0f4ff;
+    border-right: 5px solid #0f3460;
+    padding: 18px 22px;
+    margin: 16px 0;
+    border-radius: 0 8px 8px 0;
+  }
+
+  .step-box .step-num {
+    display: inline-block;
+    background: #0f3460;
+    color: #fff;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 32px;
+    font-weight: 700;
+    font-size: 15px;
+    margin-left: 10px;
+    vertical-align: middle;
+  }
+
+  .step-box .step-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #0f3460;
+    vertical-align: middle;
+  }
+
+  .step-box p {
+    margin-top: 10px;
+    margin-bottom: 0;
+  }
+
+  .warn-box {
+    background: #fff8f0;
+    border-right: 5px solid #e94560;
+    padding: 16px 20px;
+    margin: 16px 0;
+    border-radius: 0 8px 8px 0;
+  }
+
+  .warn-box .warn-title {
+    font-weight: 700;
+    color: #e94560;
+    font-size: 15px;
+    margin-bottom: 6px;
+  }
+
+  .info-box {
+    background: #f0faf4;
+    border-right: 5px solid #10b981;
+    padding: 16px 20px;
+    margin: 16px 0;
+    border-radius: 0 8px 8px 0;
+  }
+
+  .info-box .info-title {
+    font-weight: 700;
+    color: #10b981;
+    font-size: 15px;
+    margin-bottom: 6px;
+  }
+
+  .code-block {
+    background: #1e1e2e;
+    color: #cdd6f4;
+    font-family: 'Courier New', monospace;
+    font-size: 12.5px;
+    direction: ltr;
+    text-align: left;
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin: 12px 0;
+    line-height: 1.7;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  .code-inline {
+    background: #eef2ff;
+    color: #0f3460;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    direction: ltr;
+    display: inline-block;
+  }
+
+  ul, ol {
+    padding-right: 25px;
+    margin: 10px 0;
+  }
+
+  li {
+    font-size: 14.5px;
+    line-height: 2;
+    color: #2d2d44;
+    margin-bottom: 4px;
+  }
+
+  .toc-page h2 {
+    text-align: center;
+    display: block;
+    border: none;
+    font-size: 28px;
+    margin-bottom: 30px;
+  }
+
+  .toc-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .toc-list li {
+    font-size: 16px;
+    line-height: 2.4;
+    border-bottom: 1px dashed #d1d5db;
+    padding: 4px 0;
+  }
+
+  .toc-list li a {
+    color: #0f3460;
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .feature-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 16px 0;
+  }
+
+  .feature-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .feature-card .icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+  }
+
+  .feature-card .label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #0f3460;
+  }
+
+  .feature-card .desc {
+    font-size: 12.5px;
+    color: #64748b;
+    margin-top: 4px;
+  }
+
+  .comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 13.5px;
+  }
+
+  .comparison-table th {
+    background: #0f3460;
+    color: #fff;
+    padding: 10px 14px;
+    font-weight: 600;
+    text-align: right;
+  }
+
+  .comparison-table td {
+    padding: 9px 14px;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: right;
+  }
+
+  .comparison-table tr:nth-child(even) td {
+    background: #f8fafc;
+  }
+
+  .check-item::before {
+    content: "\2713 ";
+    color: #10b981;
+    font-weight: 700;
+    margin-left: 4px;
+  }
+
+  .page-footer {
+    position: absolute;
+    bottom: 25px;
+    left: 55px;
+    right: 55px;
+    text-align: center;
+    font-size: 11px;
+    color: #94a3b8;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 8px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Cover Page -->
+<div class="page cover">
+  <div class="logo-circle">B</div>
+  <h1>بناء تطبيق Breathy<br>من التابلت</h1>
+  <div class="subtitle">دليل شامل لبناء ملف APK عبر خدمة Codemagic السحابية<br>بدون الحاجة لجهاز كمبيوتر</div>
+  <div class="divider"></div>
+  <div class="meta">
+    الإصدار 1.0 - مايو 2026<br>
+    مشروع Breathy - تطبيق الإقلاع عن التدخين<br>
+    Kotlin + Jetpack Compose + Firebase
+  </div>
+</div>
+
+<!-- TOC Page -->
+<div class="page toc-page">
+  <h2>المحتويات</h2>
+  <ul class="toc-list">
+    <li><a href="#sec1">1. نظرة عامة: ما هو Codemagic؟</a></li>
+    <li><a href="#sec2">2. مقارنة طرق البناء السحابية</a></li>
+    <li><a href="#sec3">3. المتطلبات قبل البدء</a></li>
+    <li><a href="#sec4">4. الخطوة 1: إنشاء حساب GitHub</a></li>
+    <li><a href="#sec5">5. الخطوة 2: رفع كود المشروع إلى GitHub</a></li>
+    <li><a href="#sec6">6. الخطوة 3: إنشاء حساب Codemagic</a></li>
+    <li><a href="#sec7">7. الخطوة 4: ربط المشروع وإعدادات البناء</a></li>
+    <li><a href="#sec8">8. الخطوة 5: بناء الـ APK وتحميله</a></li>
+    <li><a href="#sec9">9. الخطوة 6: تثبيت الـ APK على التابلت</a></li>
+    <li><a href="#sec10">10. حل المشاكل الشائعة</a></li>
+    <li><a href="#sec11">11. الطريقة البديلة: GitHub Actions</a></li>
+    <li><a href="#sec12">12. ملف codemagic.yaml المرجعي</a></li>
+  </ul>
+</div>
+
+<!-- Section 1 -->
+<div class="page">
+  <h2 id="sec1">1. نظرة عامة: ما هو Codemagic؟</h2>
+  <p>
+    Codemagic هو نظام بناء سحابي (CI/CD) مصمم خصيصاً لتطبيقات الموبايل. يعني بدل ما تبني الـ APK على جهازك، الكود يتروش لسيرفرات Codemagic في السحابة، وهني يتم بناء الـ APK تلقائياً، وبعدين تقدر تنزل الملف الجاهز على تابلتك مباشرة من المتصفح.
+  </p>
+  <p>
+    هالخدمة كانت تركّز على Flutter في البداية، بس حالياً تدعم Android Native (Kotlin/Java) بشكل كامل، وكذلك iOS وReact Native. يعني مشروع Breathy اللي مكتوب بـ Kotlin + Jetpack Compose مدعوم 100%.
+  </p>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="icon">&#9729;</div>
+      <div class="label">بناء سحابي بالكامل</div>
+      <div class="desc">ما تحتاج كمبيوتر، كل شي في السحابة</div>
+    </div>
+    <div class="feature-card">
+      <div class="icon">&#9889;</div>
+      <div class="label">سيرفرات عالية الأداء</div>
+      <div class="desc">Linux x2 مع 8GB RAM للبناء السريع</div>
+    </div>
+    <div class="feature-card">
+      <div class="icon">&#9742;</div>
+      <div class="label">يعمل من المتصفح</div>
+      <div class="desc">تابلتك يكفي، فقط متصفح Chrome</div>
+    </div>
+    <div class="feature-card">
+      <div class="icon">&#9830;</div>
+      <div class="label">خطة مجانية متاحة</div>
+      <div class="desc">ابدأ مجاناً وادفع حسب الاستخدام</div>
+    </div>
+  </div>
+
+  <h3>لماذا Codemagic هو الخيار الأفضل لك؟</h3>
+  <p>
+    أنت تستخدم تابلت Android بدون كمبيوتر. هالوضع ما يمنعك من بناء تطبيقك! Codemagic يحل المشكلة بالكامل لأنه يشتغل من المتصفح فقط. ما تحتاج تثبت أي برنامج على التابلت، ما تحتاج JDK أو Gradle أو Android SDK. كل اللي تحتاجه هو متصفح إنترنت وبريد إلكتروني.
+  </p>
+  <p>
+    العملية ببساطة: ترفع الكود إلى GitHub (من المتصفح)، وتخلي Codemagic يبني لك الـ APK في السحابة، وبعدين تنزل الملف النهائي وتثبته على تابلتك. كل خطوة تتم من متصفح التابلت بدون أي أداة إضافية.
+  </p>
+
+  <div class="info-box">
+    <div class="info-title">معلومة مهمة</div>
+    <p>عندنا ملف إعدادات جاهز <span class="code-inline">codemagic.yaml</span> مضاف لمشروع Breathy. هالملف يخلي Codemagic يعرف إشلون يبني التطبيق بالضبط بدون أي إعداد يدوي معقد.</p>
+  </div>
+</div>
+
+<!-- Section 2 -->
+<div class="page">
+  <h2 id="sec2">2. مقارنة طرق البناء السحابية</h2>
+  <p>
+    في عدة طرق تقدر تبني الـ APK من التابلت بدون كمبيوتر. الجدول التالي يقارن أهم الطرق المتاحة عشان تختار الأنسب لك:
+  </p>
+
+  <table class="comparison-table">
+    <thead>
+      <tr>
+        <th>الطريقة</th>
+        <th>مجاني؟</th>
+        <th>يدعم Android Native</th>
+        <th>سهولة من التابلت</th>
+        <th>سرعة البناء</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><b>Codemagic</b></td>
+        <td style="color:#10b981">نعم (خطة مجانية)</td>
+        <td style="color:#10b981">مدعوم بالكامل</td>
+        <td>سهل جداً - من المتصفح</td>
+        <td>5-15 دقيقة</td>
+      </tr>
+      <tr>
+        <td><b>GitHub Actions</b></td>
+        <td style="color:#10b981">نعم (2000 دقيقة/شهر)</td>
+        <td style="color:#10b981">مدعوم بالكامل</td>
+        <td>سهل - من المتصفح</td>
+        <td>5-15 دقيقة</td>
+      </tr>
+      <tr>
+        <td><b>Termux</b></td>
+        <td style="color:#10b981">مجاني</td>
+        <td style="color:#10b981">مدعوم</td>
+        <td style="color:#e94560">صعب - يحتاج إعداد كثير</td>
+        <td>بطيء (30-60 دقيقة)</td>
+      </tr>
+      <tr>
+        <td><b>AIDE IDE</b></td>
+        <td>مجاني محدود</td>
+        <td style="color:#e94560">Java فقط (لا Kotlin)</td>
+        <td>متوسط</td>
+        <td>متوسط</td>
+      </tr>
+      <tr>
+        <td><b>Firebase App Distribution</b></td>
+        <td style="color:#10b981">مجاني</td>
+        <td>يحتاج بناء من مكان ثاني</td>
+        <td>لا يبني - يوزع فقط</td>
+        <td>-</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="info-box">
+    <div class="info-title">توصيتنا</div>
+    <p>ننصح بـ <b>Codemagic</b> كخيار أول لأنه مصمم خصيصاً لتطبيقات الموبايل، وواجهته سهلة جداً من المتصفح. <b>GitHub Actions</b> هو بديل ممتاز أيضاً وعندنا ملف workflow جاهز له. الطريقتين يشتغلون من متصفح التابلت بدون أي مشكلة.</p>
+  </div>
+
+  <h3>ملاحظة عن Termux</h3>
+  <p>
+    Termux يخليك تثبت JDK وGradle على التابلت وتبني الـ APK محلياً. بس العملية معقدة وتحتاج أوامر كثيرة في التيرمنال، والبناء يكون بطيء لأن التابلت أضعف من سيرفرات السحابة. مع ذلك، هو خيار مجاني بالكامل ويعمل بدون إنترنت بعد التثبيت. لو حاب تجربه، في قسم منفصل نشرح الخطوات.
+  </p>
+</div>
+
+<!-- Section 3 -->
+<div class="page">
+  <h2 id="sec3">3. المتطلبات قبل البدء</h2>
+  <p>قبل ما تبدأ عملية البناء، تأكد من توفر الأشياء التالية:</p>
+
+  <h3>متطلبات أساسية</h3>
+  <ul>
+    <li><b>تابلت Android</b> - أي تابلت يشغل Chrome أو أي متصفح حديث</li>
+    <li><b>اتصال إنترنت</b> - مستقر ويفضل Wi-Fi لأن ملفات البناء كبيرة شوي</li>
+    <li><b>بريد إلكتروني</b> - لتسجيل حساب GitHub وحساب Codemagic</li>
+    <li><b>ملفات مشروع Breathy</b> - اللي عندك جاهزة (51+ ملف Kotlin + إعدادات)</li>
+  </ul>
+
+  <h3>ما تحتاجه (لا يلزم!)</h3>
+  <ul>
+    <li>لا تحتاج كمبيوتر أو لابتوب</li>
+    <li>لا تحتاج تثبت Android Studio أو JDK</li>
+    <li>لا تحتاج تثبت أي تطبيق على التابلت</li>
+    <li>لا تحتاج خبرة في سطر الأوامر</li>
+  </ul>
+
+  <h3>الوقت المتوقع</h3>
+  <p>
+    العملية كاملة من البداية (إنشاء حساب) لحد ما تنزل الـ APK على التابلت تاخذ تقريباً 30-45 دقيقة في أول مرة. المرات الجاية تكون أسرع لأن الحسابات جاهزة.
+  </p>
+
+  <div class="warn-box">
+    <div class="warn-title">تنبيه مهم</div>
+    <p>البناء السحابي يحتاج إنترنت مستقر. لو الانقطع أثناء رفع الكود أو تحميل الـ APK، أعد المحاولة. البيانات ما تضيع لأن كل شي محفوظ في GitHub وCodemagic.</p>
+  </div>
+</div>
+
+<!-- Section 4 -->
+<div class="page">
+  <h2 id="sec4">4. الخطوة 1: إنشاء حساب GitHub</h2>
+  <p>GitHub هو المكان اللي تحفظ فيه كود المشروع. Codemagic يقرأ الكود من GitHub ويبني الـ APK.</p>
+
+  <div class="step-box">
+    <span class="step-num">1</span>
+    <span class="step-title">افتح متصفح Chrome على التابلت</span>
+    <p>اذهب إلى العنوان: <span class="code-inline">https://github.com/signup</span></p>
+  </div>
+
+  <div class="step-box">
+    <span class="step-num">2</span>
+    <span class="step-title">أدخل بيانات التسجيل</span>
+    <p>اكتب بريدك الإلكتروني، واختر اسم مستخدم (username)، وكلمة مرور قوية. اضغط "Continue" بعد كل خطوة.</p>
+  </div>
+
+  <div class="step-box">
+    <span class="step-num">3</span>
+    <span class="step-title">تحقق من البريد الإلكتروني</span>
+    <p>GitHub يرسل كود تحقق لبريدك. انسخ الكود وأدخله في الصفحة.</p>
+  </div>
+
+  <div class="step-box">
+    <span class="step-num">4</span>
+    <span class="step-title">أكمل الإعدادات</span>
+    <p>اختر الخطة المجانية (Free). مو لازم تدخل بيانات الدفع.</p>
+  </div>
+
+  <div class="info-box">
+    <div class="info-title">لو عندك حساب GitHub أصلاً</div>
+    <p>سجّل دخولك على <span class="code-inline">https://github.com/login</span> وانتقل للخطوة التالية مباشرة.</p>
+  </div>
+</div>
+
+<!-- Section 5 -->
+<div class="page">
+  <h2 id="sec5">5. الخطوة 2: رفع كود المشروع إلى GitHub</h2>
+  <p>الحين لازم ترفع كل ملفات مشروع Breathy إلى GitHub. عندك طريقتين:</p>
+
+  <h3>الطريقة أ: رفع من المتصفح (الأسهل)</h3>
+
+  <div class="step-box">
+    <span class="step-num">1</span>
+    <span class="step-title">أنشئ مستودع جديد</span>
+    <p>اذهب إلى <span class="code-inline">https://github.com/new</span> - اكتب اسم المستودع: <span class="code-inline">breathy</span> - اختر Public - اضغط "Create repository"</p>
+  </div>
+
+  <div class="step-box">
+    <span class="step-num">2</span>
+    <span class="step-title">ارفع ملفات المشروع</span>
+    <p>في صفحة المستودع الفارغ، اضغط "uploading an existing file" - اسحب وأفلت كل ملفات المشروع أو اخترها من التابلت - اضغط "Commit changes"</p>
+  </div>
+
+  <div class="warn-box">
+    <div class="warn-title">ملاحظة عن رفع الملفات</div>
+    <p>واجهة GitHub ما تسمح برفع مجلدات مباشرة. لازم تنشئ المجلدات واحدة واحدة باستخدام "Add file" ثم "Create new file" واكتب المسار مثل: <span class="code-inline">app/src/main/java/com/breathy/MainActivity.kt</span> - هالطريقة تنشئ المجلدات تلقائياً. البديل هو استخدام تطبيق GitHub المجاني من Play Store اللي يخليك ترفع مجلدات كاملة.</p>
+  </div>
+
+  <h3>الطريقة ب: تطبيق GitHub من Play Store (الأسهل للمجلدات)</h3>
+
+  <div class="step-box">
+    <span class="step-num">1</span>
+    <span class="step-title">ثبّت تطبيق GitHub</span>
+    <p>افتح Google Play وابحث عن "GitHub" وثبّت التطبيق الرسمي.</p>
+  </div>
+
+  <div class="step-box">
+    <span class="step-num">2</span>
+    <span class="step-title">سجّل دخولك وأنشئ مستودع</span>
+    <p>افتح التطبيق > سجّل دخولك > اضغط "+" > أنشئ مستودع جديد اسمه "breathy"</p>
+  </div>
+
+  <div class="step-box">
+    <span class="step-num">3</span>
+    <span class="step-title">ارفع الملفات</span>
+    <p>استخدم مدير الملفات لنسخ مجلد مشروع Breathy كامل إلى المستودع. التطبيق يدعم رفع مجلدات كاملة بسهولة.</p>
+  </div>
+
+  <h3>هيكلة الملفات المطلوبة</h3>
+  <p>تأكد إن الملفات مرفوعة بالهيكلة الصحيحة. أهم الملفات اللي لازم تتأكد منها:</p>
+  <ul>
+    <li><span class="code-inline">build.gradle.kts</span> - ملف البناء الرئيسي (في الجذر)</li>
+    <li><span class="code-inline">app/build.gradle.kts</span> - ملف بناء التطبيق</li>
+    <li><span class="code-inline">settings.gradle.kts</span> - إعدادات Gradle</li>
+    <li><span class="code-inline">gradle/libs.versions.toml</span> - إصدارات المكتبات</li>
+    <li><span class="code-inline">gradle.properties</span> - خصائص Gradle</li>
+    <li><span class="code-inline">app/google-services.json</span> - إعدادات Firebase</li>
+    <li><span class="code-inline">codemagic.yaml</span> - إعدادات Codemagic</li>
+    <li><span class="code-inline">app/src/main/java/com/breathy/*.kt</span> - كل ملفات Kotlin</li>
+  </ul>
+</div>
+
+<!-- Section 6 -->
+<div class="page">
+  <h2 id="sec6">6. الخطوة 3: إنشاء حساب Codemagic</h2>
+
+  <div class="step-box">
+    <span class="step-num">1</span>
+    <span class="step-title">اذهب لموقع Codemagic</span>
+    <p>افتح المتصفح واذهب إلى: <span class="code-inline">https://codemagic.io/signup</span></p>
+  </div>
+
+  <div class="step-box">
+    <span class="step-num">2</span>
+    <span class="step-title">سجّل باستخدام GitHub</span>
+    <p>اضغط على زر "Sign up with GitHub" - هالخيار أسهل لأنه يربط حسابك مباشرة بدون إعداد إضافي. Codemagic يطلب صلاحية قراءة المستودعات من GitHub، وافق على ذلك.</p>
+  </div>
+
+  <div class="step-box">
+    <span class="step-num">3</span>
+    <span class="step-title">أكمل التسجيل</span>
+    <p>أدخل معلوماتك الأساسية (اسمك، نوع المشروع Android) - اختر الخطة المجانية Free - لا تحتاج تدخل بيانات دفع.</p>
+  </div>
+
+  <div class="info-box">
+    <div class="info-title">الخطة المجانية</div>
+    <p>خطة Codemagic المجانية تعطيك 500 دقيقة بناء شهرياً على Linux. بناء مشروع Breathy ياخذ تقريباً 5-15 دقيقة، يعني تقدر تبني حوالي 30-50 مرة بالشهر مجاناً. أكثر من كافي للتطوير والتجربة.</p>
+  </div>
+</div>
+
+<!-- Section 7 -->
+<div class="page">
+  <h2 id="sec7">7. الخطوة 4: ربط المشروع وإعدادات البناء</h2>
+
+  <div class="step-box">
+    <span class="step-num">1</span>
+    <span class="step-title">أضف التطبيق</span>
+    <p>بعد تسجيل الدخول، اضغط "Add application" - اختر GitHub كمصدر - اختر مستودع <span class="code-inline">breathy</span> من القائمة - اختر نوع المشروع "Android App" - اضغط "Finish"</p>
+  </div>
+
+  <div class="step-box">
+    <span class="step-num">2</span>
+    <span class="step-title">اختر إعدادات البناء</span>
+    <p>Codemagic يكشف ملف <span class="code-inline">codemagic.yaml</span> تلقائياً من المستودع. هالملف يحتوي كل الإعدادات الجاهزة. بس تأكد من الآتي:</p>
+    <ul>
+      <li>Build format: Android App (APK)</li>
+      <li>Build mode: Debug (للتجربة) أو Release (للنشر)</li>
+      <li>Android module: app</li>
+    </ul>
+  </div>
+
+  <div class="step-box">
+    <span class="step-num">3</span>
+    <span class="step-title">إعداد المتغيرات البيئية (Environment Variables)</h3></span>
+    <p>في صفحة إعدادات البناء، اذهب لقسم "Environment variables" وأضف المتغيرات التالية:</p>
+  </div>
+
+  <table class="comparison-table">
+    <thead>
+      <tr>
+        <th>اسم المتغير</th>
+        <th>القيمة</th>
+        <th>مطلوب؟</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><span class="code-inline">GOOGLE_SERVICES_JSON</span></td>
+        <td>محتوى ملف google-services.json</td>
+        <td style="color:#e94560">نعم - ضروري</td>
+      </tr>
+      <tr>
+        <td><span class="code-inline">DEBUG_KEYSTORE_PASSWORD</span></td>
+        <td>android</td>
+        <td>للبناء Debug</td>
+      </tr>
+      <tr>
+        <td><span class="code-inline">DEBUG_KEY_ALIAS</span></td>
+        <td>androiddebugkey</td>
+        <td>للبناء Debug</td>
+      </tr>
+      <tr>
+        <td><span class="code-inline">DEBUG_KEY_PASSWORD</span></td>
+        <td>android</td>
+        <td>للبناء Debug</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="warn-box">
+    <div class="warn-title">كيف تضيف محتوى google-services.json</div>
+    <p>افتح الملف على التابلت > انسخ كل المحتوى > في Codemagic أضف متغير جديد اسمه <span class="code-inline">GOOGLE_SERVICES_JSON</span> > الصق المحتوى > اختر "Secure" (مشفّر) > احفظ. الـ script في codemagic.yaml بيكتب هالمحتوى في الملف الصحيح أثناء البناء تلقائياً.</p>
+  </div>
+</div>
+
+<!-- Section 8 -->
+<div class="page">
+  <h2 id="sec8">8. الخطوة 5: بناء الـ APK وتحميله</h2>
+
+  <div class="step-box">
+    <span class="step-num">1</span>
+    <span class="step-title">ابدأ البناء</span>
+    <p>في صفحة المشروع على Codemagic، اضغط زر <b>"Start new build"</b> - اختر الـ workflow المناسب: <span class="code-inline">android-debug</span> (للتجربة) - اضغط "Start build".</p>
+  </div>
+
+  <div class="step-box">
+    <span class="step-num">2</span>
+    <span class="step-title">راقب تقدم البناء</span>
+    <p>صفحة البناء تعرض سجل مباشر (live log) لكل خطوة. تقدر تتابع التقدم بالتفصيل. البناء يمر بالمراحل التالية:</p>
+    <ul>
+      <li>تحميل الكود من GitHub (1-2 دقيقة)</li>
+      <li>إعداد البيئة - JDK + Android SDK (2-3 دقائق)</li>
+      <li>تحميل المكتبات - Gradle sync (3-5 دقائق)</li>
+      <li>بناء الـ APK - compile + package (5-8 دقائق)</li>
+      <li>رفع الـ artifacts - الملف النهائي (1 دقيقة)</li>
+    </ul>
+  </div>
+
+  <div class="step-box">
+    <span class="step-num">3</span>
+    <span class="step-title">حمّل الـ APK</span>
+    <p>بعد ما ينتهي البناء بنجاح (علامة خضراء)، اضغط على تبويب "Artifacts" - حتلاقي ملف الـ APK جاهز للتحميل - اضغط على اسم الملف وسيبدأ التحميل على تابلتك.</p>
+  </div>
+
+  <div class="info-box">
+    <div class="info-title">البريد الإلكتروني</div>
+    <p>Codemagic يرسل لك إشعار على البريد الإلكتروني بعد انتهاء البناء (نجاح أو فشل) مع رابط مباشر لتحميل الـ APK. تقدر تحمّله من الإيميل بدل ما تدخل الموقع.</p>
+  </div>
+
+  <h3>في حال فشل البناء</h3>
+  <p>لو البناء فشل، لا تقلق! اضغط على البناء الفاشل وشوف الـ log. أكثر أسباب الفشل شيوعاً:</p>
+  <ul>
+    <li><b>ملف google-services.json مفقود أو خطأ</b> - تأكد إن المتغير البيئي يحتوي المحتوى الصحيح</li>
+    <li><b>خطأ في ملف Kotlin</b> - شوف رقم السطر في الـ log واصلح الكود في GitHub</li>
+    <li><b>مشكلة في Gradle sync</b> - غالباً بسبب إصدارات المكتبات، شوف الـ log وعدّل الملف المطلوب</li>
+  </ul>
+  <p>بعد إصلاح المشكلة، ارفع الكود المعدّل على GitHub وابدأ بناء جديد. Codemagic يبني النسخة الأحدث تلقائياً.</p>
+</div>
+
+<!-- Section 9 -->
+<div class="page">
+  <h2 id="sec9">9. الخطوة 6: تثبيت الـ APK على التابلت</h2>
+
+  <div class="step-box">
+    <span class="step-num">1</span>
+    <span class="step-title">فعّل تثبيت من مصادر غير معروفة</span>
+    <p>اذهب إلى: الإعدادات > الأمان والخصوصية > تثبيت تطبيقات غير معروفة > فعّل الخيار لمتصفح Chrome أو مدير الملفات. على بعض الأجهزة: الإعدادات > التطبيقات > وصول خاص > تثبيت تطبيقات غير معروفة.</p>
+  </div>
+
+  <div class="step-box">
+    <span class="step-num">2</span>
+    <span class="step-title">افتح ملف الـ APK</span>
+    <p>بعد تحميل الـ APK، اذهب إلى مجلد التنزيلات (Downloads) على التابلت - اضغط على ملف الـ APK (اسمه مثل: <span class="code-inline">app-debug.apk</span>) - اضغط "تثبيت".</p>
+  </div>
+
+  <div class="step-box">
+    <span class="step-num">3</span>
+    <span class="step-title">افتح التطبيق</span>
+    <p>بعد التثبيت، اضغط "فتح" أو حتلاقي أيقونة Breathy في قائمة التطبيقات. التطبيق حيطلب منك تسجيل الدخول أو إنشاء حساب. استمتع!</p>
+  </div>
+
+  <div class="warn-box">
+    <div class="warn-title">تنبيه عن توقيع التطبيق</div>
+    <p>نسخة Debug موقّعة بمفتاح تجريبي (debug keystore). هالنسخة ممتازة للتجربة والاختبار على جهازك. بس لنشر التطبيق على Play Store لازم تبني نسخة Release بمفتاح توقيع حقيقي (release keystore). هذا موضوع منفصل لمرحلة النشر.</p>
+  </div>
+</div>
+
+<!-- Section 10 -->
+<div class="page">
+  <h2 id="sec10">10. حل المشاكل الشائعة</h2>
+
+  <h3>مشكلة: البناء يفشل مع خطأ "google-services.json not found"</h3>
+  <p>
+    هذي أكثر مشكلة شيوعاً. الحل: تأكد إنك أضفت المتغير البيئي <span class="code-inline">GOOGLE_SERVICES_JSON</span> في إعدادات Codemagic، وتأكد إن المحتوى منسوخ بالكامل بدون حذف أي حرف. الملف لازم يبدأ بـ <span class="code-inline">{</span> وينتهي بـ <span class="code-inline">}</span>. لو الـ script ما يشتغل، جرب ترفع الملف مباشرة في المستودع بدل المتغير البيئي.
+  </p>
+
+  <h3>مشكلة: خطأ في تجميع Kotlin "Unresolved reference"</h3>
+  <p>
+    هالخطأ يعني إن في ملف Kotlin فيه اسم كلاس أو دالة غلط. شوف الـ log وروح لرقم السطر المذكور، وصلّح الكود في GitHub. بعد التعديل، ابدأ بناء جديد.
+  </p>
+
+  <h3>مشكلة: البناء ياخذ وقت طويل جداً (أكثر من 30 دقيقة)</h3>
+  <p>
+    أول بناء يكون أبطأ لأن Codemagic يحمل كل المكتبات لأول مرة. المرات الجاية تكون أسرع بكثير بسبب الـ cache. لو ياخذ أكثر من 30 دقيقة، تأكد إن ملف <span class="code-inline">gradle.properties</span> موجود وفيه إعدادات الـ caching.
+  </p>
+
+  <h3>مشكلة: "Out of memory" أثناء البناء</h3>
+  <p>
+    لو السيرفر يوصل الذاكرة القصوى، جرب تبني Debug بدل Release (لأن Release يشغل Proguard ويستهلك ذاكرة أكثر). أو غيّر نوع السيرفر من Linux x1 إلى Linux x2 في إعدادات البناء.
+  </p>
+
+  <h3>مشكلة: الـ APK ما يثبت على التابلت</h3>
+  <p>
+    تأكد من تفعيل "تثبيت من مصادر غير معروفة" في الإعدادات. لو تطلع رسالة "App not installed"، ممكن يكون في نسخة سابقة من التطبيق مثبتة بنفس اسم الحزمة. احذف النسخة القديمة أولاً ثم ثبّت الجديدة.
+  </p>
+
+  <h3>مشكلة: التطبيق يفتح بس يوقف (crash)</h3>
+  <p>
+    ممكن يكون في مشكلة في الاتصال بـ Firebase. تأكد إن <span class="code-inline">google-services.json</span> يحتوي البيانات الصحيحة لمشروعك. وشوف الـ logcat (لو تقدر) لمعرفة سبب التوقف بالتفصيل.
+  </p>
+</div>
+
+<!-- Section 11 -->
+<div class="page">
+  <h2 id="sec11">11. الطريقة البديلة: GitHub Actions</h2>
+  <p>
+    لو ما تبي تستخدم Codemagic، في طريقة ثانية مجانية بالكامل عبر GitHub Actions. عندنا ملف workflow جاهز مضاف للمشروع في المسار:
+  </p>
+  <div class="code-block">.github/workflows/build-apk.yml</div>
+
+  <h3>كيف تستخدم GitHub Actions</h3>
+
+  <div class="step-box">
+    <span class="step-num">1</span>
+    <span class="step-title">ارفع الكود إلى GitHub</span>
+    <p>نفس الخطوات المذكورة قبل - تأكد إن ملف <span class="code-inline">.github/workflows/build-apk.yml</span> مرفوع مع المشروع.</p>
+  </div>
+
+  <div class="step-box">
+    <span class="step-num">2</span>
+    <span class="step-title">أضف الـ Secrets</span>
+    <p>اذهب إلى صفحة المستودع > Settings > Secrets and variables > Actions > أضف الـ secrets التالية:</p>
+    <ul>
+      <li><span class="code-inline">GOOGLE_SERVICES_JSON</span> - محتوى ملف Firebase</li>
+    </ul>
+  </div>
+
+  <div class="step-box">
+    <span class="step-num">3</span>
+    <span class="step-title">شغّل البناء يدوياً</span>
+    <p>اذهب إلى تبويب "Actions" في المستودع > اختر "Build Breathy APK" > اضغط "Run workflow" > اختر فرع main > اضغط "Run workflow".</p>
+  </div>
+
+  <div class="step-box">
+    <span class="step-num">4</span>
+    <span class="step-title">حمّل الـ APK</span>
+    <p>بعد انتهاء البناء (5-15 دقيقة)، اضغط على الـ workflow run > اسحب لأسفل لقسم "Artifacts" > حمّل <span class="code-inline">breathy-debug-apk</span>. الملف حيكون مضغوط zip، فكه وحتلاقي الـ APK جاهز.</p>
+  </div>
+
+  <div class="info-box">
+    <div class="info-title">مقارنة سريعة</div>
+    <p><b>Codemagic</b>: واجهة مرئية أسهل، مخصصة لتطبيقات الموبايل، بريد إلكتروني عند الانتهاء.<br><b>GitHub Actions</b>: مجاني بالكامل (2000 دقيقة/شهر)، مدمج في GitHub، يحتاج خطوات أكثر بس أقوى في التخصيص.</p>
+  </div>
+</div>
+
+<!-- Section 12 -->
+<div class="page">
+  <h2 id="sec12">12. ملف codemagic.yaml المرجعي</h2>
+  <p>
+    هاد هو الملف الجاهز اللي أضفناه لمشروع Breathy. تقدر تعدّله حسب حاجتك:
+  </p>
+
+  <div class="code-block">workflows:
+  android-debug:
+    name: "Breathy Debug APK"
+    max_build_duration: 60
+    instance_type: linux_x2
+
+    environment:
+      vars:
+        PACKAGE_NAME: "com.breathy"
+        GOOGLE_SERVICES_JSON: ""
+
+    scripts:
+      - name: "Set up local properties"
+        script: |
+          echo "sdk.dir=$ANDROID_SDK_ROOT" &gt; local.properties
+
+      - name: "Restore google-services.json"
+        script: |
+          if [ -n "$GOOGLE_SERVICES_JSON" ]; then
+            echo "$GOOGLE_SERVICES_JSON" &gt; app/google-services.json
+          fi
+
+      - name: "Get Gradle wrapper"
+        script: |
+          chmod +x gradlew || true
+
+      - name: "Build Debug APK"
+        script: |
+          ./gradlew assembleDebug
+
+    artifacts:
+      - app/build/outputs/apk/debug/*.apk
+
+    publishing:
+      email:
+        recipients:
+          - your-email@example.com
+        notify:
+          success: true
+          failure: true</div>
+
+  <div class="info-box">
+    <div class="info-title">تخصيص البريد الإلكتروني</div>
+    <p>غيّر <span class="code-inline">your-email@example.com</span> إلى بريدك الإلكتروني الفعلي عشان توصلك إشعارات البناء. عدّل الملف في GitHub وCodemagic يقرأ النسخة الجديدة تلقائياً.</p>
+  </div>
+
+  <h3>ملخص الخطوات</h3>
+  <ol>
+    <li>أنشئ حساب GitHub > ارفع كود Breathy</li>
+    <li>أنشئ حساب Codemagic (بـ GitHub) > اربط المستودع</li>
+    <li>أضف المتغيرات البيئية (google-services.json)</li>
+    <li>ابدأ البناء > انتظر 5-15 دقيقة</li>
+    <li>حمّل الـ APK > ثبّته على التابلت</li>
+    <li>افتح Breathy واستمتع!</li>
+  </ol>
+</div>
+
+</body>
+</html>

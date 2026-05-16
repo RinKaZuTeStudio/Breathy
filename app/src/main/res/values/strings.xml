@@ -1,0 +1,559 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- App -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <string name="app_name">Breathy</string>
+    <string name="app_tagline">Breathe Free</string>
+    <string name="app_slogan">Your quit-smoking companion</string>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- Auth Screen -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <string name="auth_sign_in">Sign In</string>
+    <string name="auth_sign_up">Sign Up</string>
+    <string name="auth_email">Email</string>
+    <string name="auth_email_hint">you@example.com</string>
+    <string name="auth_password">Password</string>
+    <string name="auth_password_hint">Enter your password</string>
+    <string name="auth_confirm_password">Confirm Password</string>
+    <string name="auth_confirm_password_hint">Re-enter your password</string>
+    <string name="auth_forgot_password">Forgot Password?</string>
+    <string name="auth_sign_in_with_google">Sign in with Google</string>
+    <string name="auth_or">or</string>
+    <string name="auth_no_account">Don\'t have an account?</string>
+    <string name="auth_has_account">Already have an account?</string>
+    <string name="auth_sign_up_link">Sign Up</string>
+    <string name="auth_sign_in_link">Sign In</string>
+    <string name="auth_password_reset_sent">Password reset email sent!</string>
+    <string name="auth_error_invalid_email">Please enter a valid email address</string>
+    <string name="auth_error_password_too_short">Password must be at least 6 characters</string>
+    <string name="auth_error_passwords_dont_match">Passwords do not match</string>
+    <string name="auth_error_sign_in_failed">Sign in failed. Please check your credentials.</string>
+    <string name="auth_error_sign_up_failed">Sign up failed. Please try again.</string>
+    <string name="auth_error_google_sign_in_failed">Google sign-in failed. Please try again.</string>
+    <string name="auth_error_network">Network error. Please check your connection.</string>
+    <string name="auth_welcome_back">Welcome back!</string>
+    <string name="auth_create_account">Create your account</string>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- Onboarding -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_back">Back</string>
+    <string name="onboarding_lets_go">Let\'s Go!</string>
+
+    <!-- Step 1: Welcome -->
+    <string name="onboarding_welcome_title">Your Journey Starts Here</string>
+    <string name="onboarding_welcome_description">Thousands have quit smoking with Breathy. Track your progress, connect with others, and celebrate every smoke-free day.</string>
+
+    <!-- Step 2: Quit Date -->
+    <string name="onboarding_quit_date_title">When Did You Quit?</string>
+    <string name="onboarding_quit_date_select">Select your quit date</string>
+    <string name="onboarding_quit_type_instant">Instant</string>
+    <string name="onboarding_quit_type_gradual">Gradual</string>
+    <string name="onboarding_quit_type_instant_desc">I\'ve quit or am quitting today</string>
+    <string name="onboarding_quit_type_gradual_desc">I want to reduce gradually over time</string>
+    <string name="onboarding_day_zero_badge">Day 0 — Your first day!</string>
+    <string name="onboarding_quit_date_format">%1$s</string>
+
+    <!-- Step 3: Habits -->
+    <string name="onboarding_habits_title">Tell Us About Your Habit</string>
+    <string name="onboarding_cigarettes_per_day">Cigarettes per day</string>
+    <string name="onboarding_price_per_pack">Price per pack</string>
+    <string name="onboarding_cigarettes_per_pack">Cigarettes per pack</string>
+    <string name="onboarding_savings_preview">You\'ll save approximately **$%1$.2f** per day and avoid **%2$d** cigarettes.</string>
+
+    <!-- Step 4: Profile -->
+    <string name="onboarding_profile_title">Set Up Your Profile</string>
+    <string name="onboarding_nickname">Nickname</string>
+    <string name="onboarding_nickname_hint">Choose a display name</string>
+    <string name="onboarding_profile_photo">Profile Photo</string>
+    <string name="onboarding_profile_photo_add">Add Photo</string>
+    <string name="onboarding_profile_photo_change">Change Photo</string>
+    <string name="onboarding_error_nickname_required">Please enter a nickname</string>
+    <string name="onboarding_error_nickname_too_long">Nickname must be 30 characters or less</string>
+
+    <!-- Complete -->
+    <string name="onboarding_complete_title">You\'re All Set!</string>
+    <string name="onboarding_complete_motivation">Every breath without smoke is a victory. Let\'s make today count.</string>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- Home Screen -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <string name="home_greeting_morning">Good morning</string>
+    <string name="home_greeting_afternoon">Good afternoon</string>
+    <string name="home_greeting_evening">Good evening</string>
+    <string name="home_greeting_night">Good night</string>
+    <string name="home_days_smoke_free">Days Smoke-Free</string>
+    <string name="home_day_zero">Your first day!</string>
+    <string name="home_next_milestone">Keep going! Your next milestone is %1$s</string>
+    <string name="home_milestone_reached">Amazing! You\'ve reached a new milestone!</string>
+    <string name="home_stat_money_saved">Saved</string>
+    <string name="home_stat_cigarettes_avoided">Avoided</string>
+    <string name="home_stat_life_regained">Life Regained</string>
+    <string name="home_health_timeline">Health Timeline</string>
+    <string name="home_daily_reward">Daily Reward</string>
+    <string name="home_claim_reward">Claim</string>
+    <string name="home_reward_claimed">Reward claimed! +%1$d coins</string>
+    <string name="home_reward_streak">Streak: %1$d days</string>
+    <string name="home_reward_next">Next reward in %1$s</string>
+    <string name="home_loading">Loading your progress\u2026</string>
+    <string name="home_error_loading">Failed to load your data</string>
+    <string name="home_retry">Retry</string>
+    <string name="home_packs_not_smoked">That\'s %1$d packs not smoked!</string>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- Craving Management -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <string name="craving_title">Stay Strong! You\'ve got this</string>
+    <string name="craving_first">Your first craving — you can do this!</string>
+    <string name="craving_since_last">%1$s since last craving</string>
+    <string name="craving_breathe">Breathe</string>
+    <string name="craving_breathe_desc">4-7-8 breathing to calm cravings</string>
+    <string name="craving_distract">Distract</string>
+    <string name="craving_distract_desc">Tap as fast as you can for 30 seconds</string>
+    <string name="craving_talk">Talk</string>
+    <string name="craving_talk_desc">Chat with your AI coach</string>
+    <string name="craving_tap_to_start">Tap to start</string>
+    <string name="craving_did_it_help">Did it help?</string>
+    <string name="craving_yes">Yes, I\'m good</string>
+    <string name="craving_no">Not really</string>
+    <string name="craving_conquered">Craving conquered! +5 XP</string>
+    <string name="craving_unresolved">That\'s okay. Cravings are tough. Try another method or talk to your coach.</string>
+    <string name="craving_log_prompt">Logging helps you understand your patterns — just one tap!</string>
+    <string name="craving_intensity">Craving Intensity</string>
+    <string name="craving_intensity_low">Mild</string>
+    <string name="craving_intensity_medium">Moderate</string>
+    <string name="craving_intensity_high">Intense</string>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- Breathing Exercise -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <string name="breathing_inhale">Inhale</string>
+    <string name="breathing_hold">Hold</string>
+    <string name="breathing_exhale">Exhale</string>
+    <string name="breathing_im_calm">I\'m Calm</string>
+    <string name="breathing_cycle">Cycle %1$d of %2$d</string>
+    <string name="breathing_complete">Well done! You completed the breathing exercise.</string>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- Tap Game -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <string name="tap_game_start">Start Tapping!</string>
+    <string name="tap_game_time_left">%1$ds left</string>
+    <string name="tap_game_result">You tapped %1$d times! That craving doesn\'t stand a chance.</string>
+    <string name="tap_game_done">Done</string>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- Community -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <string name="community_title">Community</string>
+    <string name="community_feed">Feed</string>
+    <string name="community_my_stories">My Stories</string>
+    <string name="community_post_story">Share Your Story</string>
+    <string name="community_story_hint">What\'s on your mind? Share your journey\u2026</string>
+    <string name="community_story_character_limit">%1$d / %2$d</string>
+    <string name="community_story_post">Post</string>
+    <string name="community_story_posting">Posting\u2026</string>
+    <string name="community_story_posted">Story Shared!</string>
+    <string name="community_story_min_length">Please write at least 10 characters</string>
+    <string name="community_story_add_photo">Add Photo</string>
+    <string name="community_story_life_changes">Life Changes</string>
+    <string name="community_story_life_change_hint">e.g. Better breathing</string>
+    <string name="community_story_preview">Preview</string>
+    <string name="community_read_more">Read more</string>
+    <string name="community_show_less">Show less</string>
+    <string name="community_like">Like</string>
+    <string name="community_unlike">Unlike</string>
+    <string name="community_reply">Reply</string>
+    <string name="community_reply_hint">Write a reply\u2026</string>
+    <string name="community_reply_send">Send</string>
+    <string name="community_replying_to">Replying to %1$s</string>
+    <string name="community_empty_feed">No stories yet. Be the first to share!</string>
+    <string name="community_be_first">Be the First</string>
+    <string name="community_error_loading">Failed to load stories</string>
+    <string name="community_days_smoke_free_badge">%1$d days smoke-free</string>
+    <string name="community_just_now">Just now</string>
+    <string name="community_minutes_ago">%1$dm ago</string>
+    <string name="community_hours_ago">%1$dh ago</string>
+    <string name="community_days_ago">%1$dd ago</string>
+    <string name="community_content_under_review">Your story is being reviewed</string>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- Friends -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <string name="friends_title">Friends</string>
+    <string name="friends_tab_friends">Friends</string>
+    <string name="friends_tab_requests">Requests</string>
+    <string name="friends_incoming_requests">Incoming</string>
+    <string name="friends_outgoing_requests">Outgoing</string>
+    <string name="friends_add_friend">Add Friend</string>
+    <string name="friends_send_request">Send Request</string>
+    <string name="friends_request_sent">Friend request sent!</string>
+    <string name="friends_request_accepted">Friend request accepted!</string>
+    <string name="friends_request_rejected">Friend request declined</string>
+    <string name="friends_accept">Accept</string>
+    <string name="friends_decline">Decline</string>
+    <string name="friends_remove">Remove</string>
+    <string name="friends_remove_confirm">Remove %1$s from your friends?</string>
+    <string name="friends_remove_confirm_action">Remove</string>
+    <string name="friends_cancel">Cancel</string>
+    <string name="friends_search_hint">Search by nickname\u2026</string>
+    <string name="friends_no_results">No users found</string>
+    <string name="friends_empty">No friends yet. Add someone!</string>
+    <string name="friends_no_requests">No pending requests</string>
+    <string name="friends_now_friends">You and %1$s are now friends!</string>
+    <string name="friends_removed">Friend removed</string>
+    <string name="friends_error">Something went wrong</string>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- Chat -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <string name="chat_title">Chat</string>
+    <string name="chat_message_hint">Type a message\u2026</string>
+    <string name="chat_send">Send</string>
+    <string name="chat_typing">typing\u2026</string>
+    <string name="chat_user_typing">%1$s is typing\u2026</string>
+    <string name="chat_online">Online</string>
+    <string name="chat_offline">Offline</string>
+    <string name="chat_today">Today</string>
+    <string name="chat_yesterday">Yesterday</string>
+    <string name="chat_empty">No messages yet. Say hello!</string>
+    <string name="chat_error_send">Failed to send message</string>
+    <string name="chat_read">Read</string>
+    <string name="chat_delivered">Delivered</string>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- Events -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <string name="events_title">Events</string>
+    <string name="events_active">Active</string>
+    <string name="events_upcoming">Upcoming</string>
+    <string name="events_completed">Completed</string>
+    <string name="events_join">Join</string>
+    <string name="events_joining">Joining\u2026</string>
+    <string name="events_joined">Joined!</string>
+    <string name="events_coming_soon">Coming Soon</string>
+    <string name="events_daily_requirement">Daily: %1$s</string>
+    <string name="events_date_range">%1$s — %2$s</string>
+    <string name="events_prize">Prize: %1$s</string>
+    <string name="events_participants">%1$d participants</string>
+    <string name="events_empty">No active events right now</string>
+    <string name="events_error_loading">Failed to load events</string>
+    <string name="events_detail">Event Detail</string>
+    <string name="events_details_tab">Details</string>
+    <string name="events_leaderboard_tab">Leaderboard</string>
+    <string name="events_check_in">Check In</string>
+    <string name="events_check_in_day">Check In — Day %1$d</string>
+    <string name="events_check_in_recording">Recording\u2026</string>
+    <string name="events_check_in_stop">Stop</string>
+    <string name="events_check_in_record">Record</string>
+    <string name="events_check_in_max_duration">Max %1$ds</string>
+    <string name="events_check_in_preview">Preview</string>
+    <string name="events_check_in_discard">Discard</string>
+    <string name="events_check_in_submit">Submit</string>
+    <string name="events_check_in_uploading">Uploading\u2026</string>
+    <string name="events_check_in_complete">Check-in submitted!</string>
+    <string name="events_check_in_no_camera">Camera permission required</string>
+    <string name="events_check_in_grant_camera">Grant Camera Access</string>
+    <string name="events_countdown">%1$dd %2$dh %3$dm %4$ds</string>
+    <string name="events_current_streak">Current Streak: %1$d days</string>
+    <string name="events_approved_days">Approved: %1$d days</string>
+    <string name="events_progress">%1$d%% complete</string>
+
+    <!-- Admin Review -->
+    <string name="events_admin_review">Review Check-ins</string>
+    <string name="events_admin_approve">Approve</string>
+    <string name="events_admin_reject">Reject</string>
+    <string name="events_admin_batch_approve">Batch Approve</string>
+    <string name="events_admin_batch_reject">Batch Reject</string>
+    <string name="events_admin_select_all">Select All</string>
+    <string name="events_admin_deselect_all">Deselect All</string>
+    <string name="events_admin_rejection_reason">Rejection reason (optional)</string>
+    <string name="events_admin_no_pending">No pending check-ins</string>
+    <string name="events_admin_selected">%1$d selected</string>
+    <string name="events_checkin_rejected">Your check-in for %1$s was not approved. Keep trying!</string>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- Leaderboard -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <string name="leaderboard_title">Leaderboard</string>
+    <string name="leaderboard_global">Global</string>
+    <string name="leaderboard_friends">Friends</string>
+    <string name="leaderboard_weekly">Weekly</string>
+    <string name="leaderboard_monthly">Monthly</string>
+    <string name="leaderboard_all_time">All Time</string>
+    <string name="leaderboard_you">You</string>
+    <string name="leaderboard_rank">%1$d</string>
+    <string name="leaderboard_xp">%1$d XP</string>
+    <string name="leaderboard_empty">No one here yet</string>
+    <string name="leaderboard_error">Failed to load leaderboard</string>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- Profile -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <string name="profile_title">Profile</string>
+    <string name="profile_edit">Edit Profile</string>
+    <string name="profile_nickname">Nickname</string>
+    <string name="profile_location">Location</string>
+    <string name="profile_quit_date">Quit Date</string>
+    <string name="profile_cigarettes_per_day">Cigarettes/day</string>
+    <string name="profile_price_per_pack">Price/pack</string>
+    <string name="profile_cigarettes_per_pack">Cigarettes/pack</string>
+    <string name="profile_level">Level %1$d — %2$s</string>
+    <string name="profile_xp_progress">%1$d / %2$d XP</string>
+    <string name="profile_stats">Stats</string>
+    <string name="profile_achievements">Achievements</string>
+    <string name="profile_coins">Coins</string>
+    <string name="profile_saved">Saved</string>
+    <string name="profile_avoided">Avoided</string>
+    <string name="profile_days_free">Days Free</string>
+    <string name="profile_sign_out">Sign Out</string>
+    <string name="profile_delete_account">Delete Account</string>
+    <string name="profile_delete_confirm">Are you sure you want to delete your account? This action cannot be undone.</string>
+    <string name="profile_delete_confirm_action">Delete</string>
+    <string name="profile_message">Message</string>
+    <string name="profile_pending">Pending</string>
+    <string name="profile_error_loading">Failed to load profile</string>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- Achievements -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <string name="achievements_title">Achievements</string>
+    <string name="achievements_unlocked">Unlocked</string>
+    <string name="achievements_locked">Locked</string>
+    <string name="achievements_count">%1$d / %2$d</string>
+    <string name="achievement_first_breath">First Breath</string>
+    <string name="achievement_first_breath_desc">Complete Day 1 smoke-free</string>
+    <string name="achievement_one_week">One Week Strong</string>
+    <string name="achievement_one_week_desc">Reach 7 days smoke-free</string>
+    <string name="achievement_one_month">One Month Free</string>
+    <string name="achievement_one_month_desc">Reach 30 days smoke-free</string>
+    <string name="achievement_one_year">One Year Clean</string>
+    <string name="achievement_one_year_desc">Reach 365 days smoke-free</string>
+    <string name="achievement_money_saver">Money Saver</string>
+    <string name="achievement_money_saver_desc">Save $100 total</string>
+    <string name="achievement_big_saver">Big Saver</string>
+    <string name="achievement_big_saver_desc">Save $1,000 total</string>
+    <string name="achievement_craving_crusher">Craving Crusher</string>
+    <string name="achievement_craving_crusher_desc">Successfully resist 50 cravings</string>
+    <string name="achievement_breathing_master">Breathing Master</string>
+    <string name="achievement_breathing_master_desc">Complete 100 breathing exercises</string>
+    <string name="achievement_community_star">Community Star</string>
+    <string name="achievement_community_star_desc">Receive 50 total likes on stories</string>
+    <string name="achievement_storyteller">Storyteller</string>
+    <string name="achievement_storyteller_desc">Post 10 community stories</string>
+    <string name="achievement_social_butterfly">Social Butterfly</string>
+    <string name="achievement_social_butterfly_desc">Add 10 friends</string>
+    <string name="achievement_event_champion">Event Champion</string>
+    <string name="achievement_event_champion_desc">Complete an event challenge</string>
+    <string name="achievement_streak_keeper">Streak Keeper</string>
+    <string name="achievement_streak_keeper_desc">Claim daily reward 30 days in a row</string>
+    <string name="achievement_level_5">Level 5</string>
+    <string name="achievement_level_5_desc">Reach Level 5</string>
+    <string name="achievement_level_10">Level 10</string>
+    <string name="achievement_level_10_desc">Reach Level 10</string>
+    <string name="achievement_ai_explorer">AI Explorer</string>
+    <string name="achievement_ai_explorer_desc">Have 50 AI Coach conversations</string>
+    <string name="achievement_unlocked_message">Achievement Unlocked: %1$s!</string>
+    <string name="achievement_locked_hint">Locked — %1$s</string>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- AI Coach -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <string name="coach_title">AI Coach</string>
+    <string name="coach_greeting">Hey there! I\'m your Breathy Coach. How can I help you today?</string>
+    <string name="coach_message_hint">Type your message\u2026</string>
+    <string name="coach_send">Send</string>
+    <string name="coach_thinking">Thinking\u2026</string>
+    <string name="coach_error">Something went wrong. Please try again.</string>
+    <string name="coach_rate_limited">Slow down! You\'re sending messages too fast. Please wait a moment.</string>
+    <string name="coach_craving_context">I\'m having a craving right now. Help me through this.</string>
+    <string name="coach_clear_history">Clear Chat</string>
+    <string name="coach_clear_confirm">Clear all conversation history?</string>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- Subscription -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <string name="subscription_title">Support Breathy</string>
+    <string name="subscription_price">$1.00/month</string>
+    <string name="subscription_description">Remove ads and support development</string>
+    <string name="subscription_subscribe">Subscribe</string>
+    <string name="subscription_subscribed">Subscribed</string>
+    <string name="subscription_thank_you">Thank you for your support!</string>
+    <string name="subscription_benefits_ad_free">Ad-free experience</string>
+    <string name="subscription_benefits_support">Support ongoing development</string>
+    <string name="subscription_benefits_early">Early access to new features</string>
+    <string name="subscription_error">Subscription failed. Please try again.</string>
+    <string name="subscription_cancel">You can cancel anytime from Google Play.</string>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- Health Timeline Milestones -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <string name="health_20_min">20 minutes</string>
+    <string name="health_20_min_title">Heart Rate Normalizes</string>
+    <string name="health_20_min_desc">Your heart rate and blood pressure begin to drop to normal levels.</string>
+    <string name="health_8_hours">8 hours</string>
+    <string name="health_8_hours_title">Carbon Monoxide Drops</string>
+    <string name="health_8_hours_desc">Carbon monoxide levels in your blood decrease by half, allowing oxygen levels to return to normal.</string>
+    <string name="health_24_hours">24 hours</string>
+    <string name="health_24_hours_title">Heart Attack Risk Decreases</string>
+    <string name="health_24_hours_desc">Your risk of heart attack begins to decrease as cardiovascular effects start to reverse.</string>
+    <string name="health_48_hours">48 hours</string>
+    <string name="health_48_hours_title">Taste and Smell Improve</string>
+    <string name="health_48_hours_desc">Nerve endings begin to regrow, and your ability to taste and smell is noticeably enhanced.</string>
+    <string name="health_72_hours">72 hours</string>
+    <string name="health_72_hours_title">Breathing Becomes Easier</string>
+    <string name="health_72_hours_desc">Bronchial tubes relax and lung capacity increases, making breathing feel easier.</string>
+    <string name="health_2_weeks">2 weeks</string>
+    <string name="health_2_weeks_title">Circulation Improves</string>
+    <string name="health_2_weeks_desc">Blood circulation throughout your body improves significantly.</string>
+    <string name="health_1_month">1 month</string>
+    <string name="health_1_month_title">Lung Function Improves</string>
+    <string name="health_1_month_desc">Lung cilia regrow and lung function increases by up to 30%.</string>
+    <string name="health_3_months">1–9 months</string>
+    <string name="health_3_months_title">Coughing Decreases</string>
+    <string name="health_3_months_desc">Cilia in the lungs fully regrow, reducing coughing and shortness of breath.</string>
+    <string name="health_1_year">1 year</string>
+    <string name="health_1_year_title">Heart Disease Risk Halved</string>
+    <string name="health_1_year_desc">Your risk of coronary heart disease is now half that of a smoker\'s.</string>
+    <string name="health_5_years">5 years</string>
+    <string name="health_5_years_title">Stroke Risk Equal to Non-Smoker</string>
+    <string name="health_5_years_desc">Your stroke risk is now reduced to that of a non-smoker.</string>
+    <string name="health_10_years">10 years</string>
+    <string name="health_10_years_title">Lung Cancer Risk Halved</string>
+    <string name="health_10_years_desc">Your lung cancer risk falls to about half that of a smoker.</string>
+    <string name="health_15_years">15 years</string>
+    <string name="health_15_years_title">Heart Disease Risk Equal to Non-Smoker</string>
+    <string name="health_15_years_desc">Your coronary heart disease risk equals that of someone who never smoked.</string>
+    <string name="health_milestone_reached">After %1$s — %2$s</string>
+    <string name="health_milestone_upcoming">In %1$s — %2$s</string>
+    <string name="health_progress">%1$d of %2$d milestones reached</string>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- Notifications -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <string name="notification_channel_cravings">Craving Reminders</string>
+    <string name="notification_channel_cravings_desc">Reminders to stay strong during cravings</string>
+    <string name="notification_channel_social">Social Updates</string>
+    <string name="notification_channel_social_desc">Friend requests, messages, and story interactions</string>
+    <string name="notification_channel_achievements">Achievements</string>
+    <string name="notification_channel_achievements_desc">Achievement unlocks and milestone celebrations</string>
+    <string name="notification_channel_events">Events</string>
+    <string name="notification_channel_events_desc">Event reminders and check-in notifications</string>
+    <string name="notif_friend_request">%1$s wants to be your friend!</string>
+    <string name="notif_friend_accepted">You and %1$s are now friends!</string>
+    <string name="notif_story_liked">%1$s liked your story!</string>
+    <string name="notif_story_reply">%1$s replied to your story!</string>
+    <string name="notif_chat_message">%1$s sent you a message</string>
+    <string name="notif_achievement_unlocked">Achievement Unlocked: %1$s!</string>
+    <string name="notif_daily_reward">Your daily reward is waiting!</string>
+    <string name="notif_milestone">Congratulations! %1$s reached!</string>
+    <string name="notif_event_reminder">Don\'t forget to check in for %1$s!</string>
+    <string name="notif_motivation_title">Stay Strong!</string>
+    <string name="notif_motivation_body">You\'ve been smoke-free for %1$d days. Keep going!</string>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- Level Titles -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <string name="level_1">Fresh Start</string>
+    <string name="level_2">First Steps</string>
+    <string name="level_3">Gaining Ground</string>
+    <string name="level_4">Steady Climb</string>
+    <string name="level_5">Committed</string>
+    <string name="level_6">Resilient</string>
+    <string name="level_7">Unbreakable</string>
+    <string name="level_8">Freedom Fighter</string>
+    <string name="level_9">Champion</string>
+    <string name="level_10">Legend</string>
+    <string name="level_up">Level Up! You\'re now Level %1$d — %2$s</string>
+    <string name="xp_earned">+%1$d XP</string>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- Errors -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <string name="error_generic">Something went wrong. Please try again.</string>
+    <string name="error_network">No internet connection</string>
+    <string name="error_timeout">Request timed out. Please try again.</string>
+    <string name="error_permission_camera">Camera permission is required</string>
+    <string name="error_permission_storage">Storage permission is required</string>
+    <string name="error_permission_notification">Notification permission is required for reminders</string>
+    <string name="error_storage_upload">Failed to upload file. Please try again.</string>
+    <string name="error_video_too_large">Video must be under 15 seconds</string>
+    <string name="error_max_friends">You\'ve reached the maximum of 200 friends</string>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- Bottom Navigation -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <string name="nav_home">Home</string>
+    <string name="nav_community">Community</string>
+    <string name="nav_events">Events</string>
+    <string name="nav_leaderboard">Leaderboard</string>
+    <string name="nav_profile">Profile</string>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- Common / General -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="delete">Delete</string>
+    <string name="close">Close</string>
+    <string name="loading">Loading\u2026</string>
+    <string name="retry">Retry</string>
+    <string name="done">Done</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="settings">Settings</string>
+    <string name="help">Help</string>
+    <string name="about">About</string>
+    <string name="version">Version %1$s</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="terms_of_service">Terms of Service</string>
+    <string name="feedback">Send Feedback</string>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- Accessibility Descriptions -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <string name="a11y_app_logo">Breathy app logo</string>
+    <string name="a11y_profile_photo">Profile photo</string>
+    <string name="a11y_notification_bell">Notifications</string>
+    <string name="a11y_notification_badge">Unread notifications</string>
+    <string name="a11y_craving_button">Log a craving</string>
+    <string name="a11y_breathing_circle">Breathing exercise circle — %1$s</string>
+    <string name="a11y_like_button">Like this story</string>
+    <string name="a11y_unlike_button">Remove like from this story</string>
+    <string name="a11y_reply_button">Reply to this story</string>
+    <string name="a11y_send_message">Send message</string>
+    <string name="a11y_friend_request">Friend request from %1$s</string>
+    <string name="a11y_accept_request">Accept friend request</string>
+    <string name="a11y_decline_request">Decline friend request</string>
+    <string name="a11y_achievement_badge">Achievement: %1$s</string>
+    <string name="a11y_achievement_locked">Locked achievement: %1$s</string>
+    <string name="a11y_stat_card">%1$s: %2$s</string>
+    <string name="a11y_health_milestone_achieved">Achieved milestone: %1$s</string>
+    <string name="a11y_health_milestone_upcoming">Upcoming milestone: %1$s</string>
+    <string name="a11y_leaderboard_rank">%1$s is rank %2$d with %3$d XP</string>
+    <string name="a11y_event_join">Join %1$s event</string>
+    <string name="a11y_event_checkin">Check in for day %1$d</string>
+    <string name="a11y_record_video">Record check-in video</string>
+    <string name="a11y_stop_recording">Stop recording</string>
+    <string name="a11y_coach_send">Send message to AI coach</string>
+    <string name="a11y_subscribe">Subscribe to Breathy</string>
+    <string name="a11y_tab_selected">%1$s tab selected</string>
+    <string name="a11y_tab_unselected">%1$s tab</string>
+    <string name="a11y_avatar">User avatar</string>
+    <string name="a11y_back_button">Navigate back</string>
+    <string name="a11y_search">Search</string>
+    <string name="a11y_filter">Filter</string>
+    <string name="a11y_menu">Menu</string>
+    <string name="a11y_password_toggle">Toggle password visibility</string>
+    <string name="a11y_confetti">Celebration animation</string>
+    <string name="a11y_typing_indicator">%1$s is typing</string>
+    <string name="a11y_message_sent">Message sent</string>
+    <string name="a11y_message_received">Message received from %1$s</string>
+    <string name="a11y_read_receipt">Message read</string>
+    <string name="a11y_daily_reward">Claim daily reward — %1$d coins</string>
+</resources>

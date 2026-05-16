@@ -1,0 +1,425 @@
+package com.breathy.data.repository
+
+import android.net.Uri
+import com.breathy.data.models.CheckinStatus
+import com.breathy.data.models.Event
+import com.breathy.data.models.EventCheckin
+import com.breathy.data.models.EventParticipant
+import com.breathy.data.models.PublicProfile
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.Source
+import com.google.firebase.storage.FirebaseStorage
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withTimeoutOrNull
+import timber.log.Timber
+
+/**
+ * Event repository — Firestore CRUD for challenge events, participants,
+ * and video check-ins.
+ *
+ * Features:
+ * - Active event listing and real-time updates
+ * - Join event with deterministic participant ID
+ * - Video check-in submission with Firebase Storage upload
+ * - Admin check-in review (approve/reject) with participant stats update
+ * - Event leaderboard based on approved days
+ * - Uses [CheckinStatus] enum instead of string literals
+ * - 30-second timeout on all network operations
+ * - Proper listener cleanup via Flow's awaitClose
+ */
+class EventRepository(
+    private val firestore: FirebaseFirestore,
+    private val auth: FirebaseAuth,
+    private val storage: FirebaseStorage
+) {
+
+    companion object {
+        private const val TAG = "EventRepository"
+        private const val NETWORK_TIMEOUT_MS = 30_000L
+        private const val EVENTS_COLLECTION = "events"
+        private const val EVENT_PARTICIPANTS_COLLECTION = "eventParticipants"
+        private const val EVENT_CHECKINS_COLLECTION = "eventCheckins"
+        private const val PUBLIC_PROFILES_COLLECTION = "publicProfiles"
+        private const val LEADERBOARD_LIMIT = 50L
+    }
+
+    private val currentUserId: String
+        get() = auth.currentUser?.uid ?: throw IllegalStateException("Not authenticated")
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    //  Get events
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    /** Fetch all currently active events. */
+    suspend fun getActiveEvents(): Result<List<Event>> = runCatching {
+        withTimeoutOrNull(NETWORK_TIMEOUT_MS) {
+            val snapshot = firestore.collection(EVENTS_COLLECTION)
+                .whereEqualTo("active", true)
+                .get(Source.SERVER)
+                .await()
+            snapshot.documents.mapNotNull { doc ->
+                doc.data?.let { Event.fromFirestoreMap(doc.id, it) }
+            }
+        } ?: throw IllegalStateException("Get active events timed out after 30 seconds")
+    }.onFailure { e ->
+        if (e !is CancellationException) Timber.e(e, "Failed to get active events")
+    }
+
+    /** Fetch a single event by ID. */
+    suspend fun getEvent(eventId: String): Result<Event> = runCatching {
+        withTimeoutOrNull(NETWORK_TIMEOUT_MS) {
+            val document = firestore.collection(EVENTS_COLLECTION).document(eventId)
+                .get(Source.SERVER)
+                .await()
+            if (!document.exists()) {
+                throw NoSuchElementException("Event not found: $eventId")
+            }
+            Event.fromFirestoreMap(document.id, document.data ?: emptyMap())
+        } ?: throw IllegalStateException("Get event timed out after 30 seconds")
+    }.onFailure { e ->
+        if (e !is CancellationException) Timber.e(e, "Failed to get event: %s", eventId)
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    //  Join event
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    /**
+     * Join an event. Uses a deterministic participant ID ({userId}_{eventId})
+     * to prevent duplicate joins.
+     */
+    suspend fun joinEvent(eventId: String): Result<EventParticipant> = runCatching {
+        val uid = currentUserId
+        val participantId = EventParticipant.participantId(uid, eventId)
+
+        withTimeoutOrNull(NETWORK_TIMEOUT_MS) {
+            val existingDoc = firestore.collection(EVENT_PARTICIPANTS_COLLECTION)
+                .document(participantId)
+                .get(Source.SERVER)
+                .await()
+
+            if (existingDoc.exists()) {
+                throw IllegalStateException("Already joined this event")
+            }
+
+            val participantData = mapOf(
+                "userId" to uid,
+                "eventId" to eventId,
+                "currentStreak" to 0,
+                "totalApprovedDays" to 0,
+                "completed" to false,
+                "joinedAt" to FieldValue.serverTimestamp(),
+                "rank" to 0
+            )
+
+            firestore.collection(EVENT_PARTICIPANTS_COLLECTION).document(participantId)
+                .set(participantData)
+                .await()
+
+            EventParticipant(
+                id = participantId,
+                userId = uid,
+                eventId = eventId,
+                joinedAt = com.google.firebase.Timestamp.now()
+            )
+        } ?: throw IllegalStateException("Join event timed out after 30 seconds")
+    }.onFailure { e ->
+        if (e !is CancellationException) Timber.e(e, "Failed to join event: %s", eventId)
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    //  Participant
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    /** Get a participant record, or null if the user hasn't joined the event. */
+    suspend fun getParticipant(
+        eventId: String,
+        userId: String
+    ): Result<EventParticipant?> = runCatching {
+        withTimeoutOrNull(NETWORK_TIMEOUT_MS) {
+            val participantId = EventParticipant.participantId(userId, eventId)
+            val document = firestore.collection(EVENT_PARTICIPANTS_COLLECTION)
+                .document(participantId)
+                .get(Source.SERVER)
+                .await()
+            if (!document.exists()) null
+            else EventParticipant.fromFirestoreMap(document.id, document.data ?: emptyMap())
+        } ?: throw IllegalStateException("Get participant timed out after 30 seconds")
+    }.onFailure { e ->
+        if (e !is CancellationException) Timber.e(e, "Failed to get participant for event: %s", eventId)
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    //  Check-ins
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    /**
+     * Submit a video check-in for an event.
+     * Uploads the video to Firebase Storage and creates a check-in document.
+     */
+    suspend fun submitCheckin(
+        eventId: String,
+        dayNumber: Int,
+        videoUri: Uri
+    ): Result<EventCheckin> = runCatching {
+        val uid = currentUserId
+
+        withTimeoutOrNull(NETWORK_TIMEOUT_MS) {
+            // Upload video to Firebase Storage
+            val videoRef = storage.reference
+                .child("checkins/$eventId/${uid}_${System.currentTimeMillis()}.mp4")
+            videoRef.putFile(videoUri).await()
+            val downloadUrl = videoRef.downloadUrl.await().toString()
+
+            val checkinData = mapOf(
+                "userId" to uid,
+                "eventId" to eventId,
+                "dayNumber" to dayNumber,
+                "videoURL" to downloadUrl,
+                "status" to CheckinStatus.PENDING.value,
+                "submittedAt" to FieldValue.serverTimestamp()
+            )
+
+            val docRef = firestore.collection(EVENT_CHECKINS_COLLECTION)
+                .add(checkinData)
+                .await()
+
+            EventCheckin(
+                id = docRef.id,
+                userId = uid,
+                eventId = eventId,
+                dayNumber = dayNumber,
+                videoURL = downloadUrl,
+                status = CheckinStatus.PENDING,
+                submittedAt = com.google.firebase.Timestamp.now()
+            )
+        } ?: throw IllegalStateException("Submit check-in timed out after 30 seconds")
+    }.onFailure { e ->
+        if (e !is CancellationException) Timber.e(e, "Failed to submit check-in for event: %s", eventId)
+    }
+
+    /** Get all check-ins for a user in a specific event. */
+    suspend fun getCheckins(
+        eventId: String,
+        userId: String
+    ): Result<List<EventCheckin>> = runCatching {
+        withTimeoutOrNull(NETWORK_TIMEOUT_MS) {
+            val snapshot = firestore.collection(EVENT_CHECKINS_COLLECTION)
+                .whereEqualTo("userId", userId)
+                .whereEqualTo("eventId", eventId)
+                .orderBy("dayNumber", Query.Direction.ASCENDING)
+                .get(Source.SERVER)
+                .await()
+            snapshot.documents.mapNotNull { doc ->
+                doc.data?.let { EventCheckin.fromFirestoreMap(doc.id, it) }
+            }
+        } ?: throw IllegalStateException("Get check-ins timed out after 30 seconds")
+    }.onFailure { e ->
+        if (e !is CancellationException) Timber.e(e, "Failed to get check-ins for event: %s", eventId)
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    //  Check-in review (admin)
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    /**
+     * Review a check-in: approve or reject it.
+     * When approved, updates the participant's totalApprovedDays and currentStreak
+     * using a Firestore transaction for consistency.
+     */
+    suspend fun updateCheckinStatus(
+        checkinId: String,
+        approved: Boolean,
+        comment: String? = null
+    ): Result<Unit> = runCatching {
+        withTimeoutOrNull(NETWORK_TIMEOUT_MS) {
+            val newStatus = if (approved) CheckinStatus.APPROVED else CheckinStatus.REJECTED
+            val updates = mutableMapOf<String, Any>(
+                "status" to newStatus.value,
+                "reviewedAt" to FieldValue.serverTimestamp()
+            )
+            if (comment != null) {
+                updates["reviewComment"] = comment
+            }
+
+            // Update the check-in document
+            firestore.collection(EVENT_CHECKINS_COLLECTION).document(checkinId)
+                .update(updates)
+                .await()
+
+            // If approved, update the participant's stats in a transaction
+            if (approved) {
+                val checkinDoc = firestore.collection(EVENT_CHECKINS_COLLECTION)
+                    .document(checkinId)
+                    .get(Source.SERVER)
+                    .await()
+                val checkinData = checkinDoc.data ?: return@withTimeoutOrNull
+                val userId = checkinData["userId"] as? String ?: return@withTimeoutOrNull
+                val eventId = checkinData["eventId"] as? String ?: return@withTimeoutOrNull
+                val participantId = EventParticipant.participantId(userId, eventId)
+                val participantRef = firestore.collection(EVENT_PARTICIPANTS_COLLECTION)
+                    .document(participantId)
+
+                firestore.runTransaction { transaction ->
+                    val participantSnapshot = transaction.get(participantRef)
+                    if (!participantSnapshot.exists()) return@runTransaction
+
+                    val currentApproved = (participantSnapshot.getLong("totalApprovedDays") ?: 0L).toInt()
+                    val currentStreak = (participantSnapshot.getLong("currentStreak") ?: 0L).toInt()
+
+                    transaction.update(participantRef, mapOf(
+                        "totalApprovedDays" to (currentApproved + 1),
+                        "currentStreak" to (currentStreak + 1)
+                    ))
+                }.await()
+            }
+        } ?: throw IllegalStateException("Review check-in timed out after 30 seconds")
+    }.onFailure { e ->
+        if (e !is CancellationException) Timber.e(e, "Failed to review check-in: %s", checkinId)
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    //  Event leaderboard
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    /**
+     * Get the leaderboard for an event.
+     * Returns participants sorted by totalApprovedDays descending,
+     * enriched with their public profiles.
+     */
+    suspend fun getEventLeaderboard(
+        eventId: String,
+        limit: Int = LEADERBOARD_LIMIT.toInt()
+    ): Result<List<EventLeaderboardEntry>> = runCatching {
+        withTimeoutOrNull(NETWORK_TIMEOUT_MS) {
+            val snapshot = firestore.collection(EVENT_PARTICIPANTS_COLLECTION)
+                .whereEqualTo("eventId", eventId)
+                .orderBy("totalApprovedDays", Query.Direction.DESCENDING)
+                .limit(limit.toLong())
+                .get(Source.SERVER)
+                .await()
+
+            val participants = snapshot.documents.mapNotNull { doc ->
+                doc.data?.let { EventParticipant.fromFirestoreMap(doc.id, it) }
+            }
+
+            // Fetch public profiles concurrently
+            val entries = coroutineScope {
+                participants.mapIndexed { index, participant ->
+                    async {
+                        try {
+                            val profileDoc = firestore.collection(PUBLIC_PROFILES_COLLECTION)
+                                .document(participant.userId)
+                                .get()
+                                .await()
+                            val profile = if (profileDoc.exists()) {
+                                PublicProfile.fromFirestoreMap(profileDoc.data ?: emptyMap())
+                            } else null
+
+                            EventLeaderboardEntry(
+                                participant = participant,
+                                publicProfile = profile,
+                                rank = index + 1
+                            )
+                        } catch (e: Exception) {
+                            Timber.e(e, "Failed to fetch profile for leaderboard: %s", participant.userId)
+                            EventLeaderboardEntry(
+                                participant = participant,
+                                publicProfile = null,
+                                rank = index + 1
+                            )
+                        }
+                    }
+                }.awaitAll()
+            }
+            entries
+        } ?: throw IllegalStateException("Get event leaderboard timed out after 30 seconds")
+    }.onFailure { e ->
+        if (e !is CancellationException) Timber.e(e, "Failed to get event leaderboard: %s", eventId)
+    }
+
+    /** Leaderboard entry combining participant data with public profile. */
+    data class EventLeaderboardEntry(
+        val participant: EventParticipant,
+        val publicProfile: PublicProfile?,
+        val rank: Int
+    )
+
+    // ═══════════════════════════════════════════════════════════════════════════
+    //  Real-time observers
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    /** Observe active events in real-time. */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun observeActiveEvents(): Flow<List<Event>> = callbackFlow {
+        val registration = firestore.collection(EVENTS_COLLECTION)
+            .whereEqualTo("active", true)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Timber.e(error, "observeActiveEvents error")
+                    close(error)
+                    return@addSnapshotListener
+                }
+                if (snapshot != null) {
+                    val events = snapshot.documents.mapNotNull { doc ->
+                        doc.data?.let { Event.fromFirestoreMap(doc.id, it) }
+                    }
+                    trySend(events)
+                }
+            }
+        awaitClose { registration.remove() }
+    }
+
+    /** Observe a single event in real-time. */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun observeEvent(eventId: String): Flow<Event> = callbackFlow {
+        val registration = firestore.collection(EVENTS_COLLECTION).document(eventId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Timber.e(error, "observeEvent error for %s", eventId)
+                    close(error)
+                    return@addSnapshotListener
+                }
+                if (snapshot != null && snapshot.exists()) {
+                    val event = Event.fromFirestoreMap(snapshot.id, snapshot.data ?: emptyMap())
+                    trySend(event)
+                }
+            }
+        awaitClose { registration.remove() }
+    }
+
+    /** Observe participants for an event in real-time. */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun observeEventParticipants(eventId: String): Flow<List<EventParticipant>> =
+        callbackFlow {
+            val registration = firestore.collection(EVENT_PARTICIPANTS_COLLECTION)
+                .whereEqualTo("eventId", eventId)
+                .orderBy("totalApprovedDays", Query.Direction.DESCENDING)
+                .limit(LEADERBOARD_LIMIT)
+                .addSnapshotListener { snapshot, error ->
+                    if (error != null) {
+                        Timber.e(error, "observeEventParticipants error for %s", eventId)
+                        close(error)
+                        return@addSnapshotListener
+                    }
+                    if (snapshot != null) {
+                        val participants = snapshot.documents.mapNotNull { doc ->
+                            doc.data?.let { EventParticipant.fromFirestoreMap(doc.id, it) }
+                        }
+                        trySend(participants)
+                    }
+                }
+            awaitClose { registration.remove() }
+        }
+}

@@ -1,0 +1,92 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // ═══════════════════════════════════════════════════════════════════
+    //  HELPER FUNCTIONS
+    // ═══════════════════════════════════════════════════════════════════
+
+    /// Whether the requester is authenticated (signed in)
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    /// Whether the requester owns the resource (matches userId path segment)
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    /// Whether the uploaded file is below the maximum size
+    function isBelowMaxSize(maxBytes) {
+      return request.resource.size <= maxBytes;
+    }
+
+    /// Whether the uploaded file matches a given MIME type pattern
+    function hasMimeType(type) {
+      return request.resource.contentType.matches(type);
+    }
+
+    /// Valid image MIME types: JPEG, PNG, WebP
+    function isValidImage() {
+      return hasMimeType("image/jpeg")
+          || hasMimeType("image/png")
+          || hasMimeType("image/webp");
+    }
+
+    /// Valid video MIME types: MP4 only
+    function isValidVideo() {
+      return hasMimeType("video/mp4");
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    //  profileImages/{userId}/**  — Profile photo uploads
+    //  Access: owner write; anyone authenticated read
+    //  Max size: 10 MB
+    //  Types: image/jpeg, image/png, image/webp
+    // ═══════════════════════════════════════════════════════════════════
+
+    match /profileImages/{userId}/{allPaths=**} {
+      allow read:  if isAuthenticated();
+      allow write: if isOwner(userId)
+                    && isBelowMaxSize(10 * 1024 * 1024)               // 10 MB
+                    && isValidImage();
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    //  event_videos/{userId}/**  — Event check-in video uploads
+    //  Access: owner write; anyone authenticated read
+    //  Max size: 100 MB
+    //  Types: video/mp4
+    // ═══════════════════════════════════════════════════════════════════
+
+    match /event_videos/{userId}/{allPaths=**} {
+      allow read:  if isAuthenticated();
+      allow write: if isOwner(userId)
+                    && isBelowMaxSize(100 * 1024 * 1024)              // 100 MB
+                    && isValidVideo();
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    //  story_images/{userId}/**  — Story image attachments
+    //  Access: owner write; anyone authenticated read
+    //  Max size: 10 MB
+    //  Types: image/jpeg, image/png, image/webp
+    // ═══════════════════════════════════════════════════════════════════
+
+    match /story_images/{userId}/{allPaths=**} {
+      allow read:  if isAuthenticated();
+      allow write: if isOwner(userId)
+                    && isBelowMaxSize(10 * 1024 * 1024)               // 10 MB
+                    && isValidImage();
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    //  Catch-all: deny everything else
+    // ═══════════════════════════════════════════════════════════════════
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+
+  }
+}
