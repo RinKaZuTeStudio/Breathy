@@ -2,7 +2,6 @@ package com.breathy.data.models
 
 import android.os.Parcel
 import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.PropertyName
 import kotlinx.parcelize.Parceler
@@ -16,6 +15,7 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.Transient
 import java.util.concurrent.TimeUnit
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -492,6 +492,7 @@ data class Chat(
     @Serializable(with = TimestampSerializer::class)
     val lastUpdated: Timestamp = Timestamp.now(),
     @PropertyName("typing")
+    @Transient
     val typing: Map<String, Timestamp> = emptyMap()
 ) : Parcelable {
     companion object {

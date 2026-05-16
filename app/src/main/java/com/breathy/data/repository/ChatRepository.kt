@@ -180,6 +180,7 @@ class ChatRepository(
                 batch.update(doc.reference, "read", true)
             }
             batch.commit().await()
+            Unit
         } ?: throw IllegalStateException("Mark as read timed out after 30 seconds")
     }.onFailure { e ->
         if (e !is CancellationException) Timber.e(e, "Failed to mark messages as read in chat: %s", chatId)
@@ -203,8 +204,10 @@ class ChatRepository(
                 val expiryTime = System.currentTimeMillis() / 1000 + TYPING_EXPIRY_SECONDS
                 val typingTimestamp = com.google.firebase.Timestamp(expiryTime, 0)
                 chatRef.update("typing.$currentUserId", typingTimestamp).await()
+                Unit
             } else {
                 chatRef.update("typing.$currentUserId", FieldValue.delete()).await()
+                Unit
             }
         } ?: throw IllegalStateException("Set typing timed out after 30 seconds")
     }.onFailure { e ->

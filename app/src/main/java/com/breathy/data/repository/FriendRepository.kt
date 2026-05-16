@@ -18,6 +18,9 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import timber.log.Timber
 
@@ -199,6 +202,7 @@ class FriendRepository(
             firestore.collection(FRIEND_REQUESTS_COLLECTION).document(requestId)
                 .update("status", RequestStatus.REJECTED.value)
                 .await()
+            Unit
         } ?: throw IllegalStateException("Reject friend request timed out after 30 seconds")
     }.onFailure { e ->
         if (e !is CancellationException) Timber.e(e, "Failed to reject friend request: %s", requestId)
@@ -295,6 +299,7 @@ class FriendRepository(
             firestore.collection(FRIENDSHIPS_COLLECTION).document(friendshipId)
                 .delete()
                 .await()
+            Unit
         } ?: throw IllegalStateException("Remove friend timed out after 30 seconds")
     }.onFailure { e ->
         if (e !is CancellationException) Timber.e(e, "Failed to remove friend: %s", friendshipId)
@@ -392,7 +397,7 @@ class FriendRepository(
                     }
 
                     // Launch a coroutine to fetch profiles without blocking
-                    kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                    GlobalScope.launch(Dispatchers.IO) {
                         val profiles = friendIds.mapNotNull { id ->
                             try {
                                 val profileDoc = firestore.collection(PUBLIC_PROFILES_COLLECTION)

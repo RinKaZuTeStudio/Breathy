@@ -411,6 +411,7 @@ class RewardRepository(
                 transaction.update(userRef, "xp", newXp)
                 transaction.update(profileRef, "xp", newXp)
             }.await()
+            Unit
         } ?: throw IllegalStateException("Award XP timed out after 30 seconds")
     }.onFailure { e ->
         if (e !is CancellationException) Timber.e(e, "Failed to award XP to user: %s", userId)
@@ -429,6 +430,7 @@ class RewardRepository(
                 val newCoins = currentCoins + amount
                 transaction.update(userRef, "coins", newCoins)
             }.await()
+            Unit
         } ?: throw IllegalStateException("Award coins timed out after 30 seconds")
     }.onFailure { e ->
         if (e !is CancellationException) Timber.e(e, "Failed to award coins to user: %s", userId)
