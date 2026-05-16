@@ -197,7 +197,7 @@ fun PublicProfileScreen(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = uiState.error,
+                        text = uiState.error ?: "",
                         color = TextSecondary,
                         style = MaterialTheme.typography.bodyMedium,
                         textAlign = TextAlign.Center

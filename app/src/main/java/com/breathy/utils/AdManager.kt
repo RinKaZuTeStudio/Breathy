@@ -149,7 +149,7 @@ class AdManager(
         try {
             MobileAds.initialize(context) { initializationStatus ->
                 val statusMap = initializationStatus.adapterStatusMap
-                val readyCount = statusMap.count { it.value.initializationState == com.google.android.gms.ads.AdapterStatus.State.READY }
+                val readyCount = statusMap.count { it.value.initializationState.name == "READY" }
                 Timber.d(
                     "Mobile Ads SDK initialized: %d/%d adapters ready",
                     readyCount, statusMap.size
