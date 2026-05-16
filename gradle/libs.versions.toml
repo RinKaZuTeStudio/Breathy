@@ -122,6 +122,9 @@ billing-ktx = { group = "com.android.billingclient", name = "billing-ktx", versi
 # AdMob
 admob = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "admob" }
 
+# Material Design (XML)
+android-material = { group = "com.google.android.material", name = "material", version.ref = "material3" }
+
 # Konfetti
 konfetti = { group = "nl.dionsegijn", name = "konfetti-compose", version.ref = "konfetti" }
 

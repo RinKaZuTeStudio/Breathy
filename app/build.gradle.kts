@@ -153,6 +153,9 @@ dependencies {
     // ── Image Cropper ──────────────────────────────────────────────────────
     implementation(libs.image.cropper)
 
+    // ── Material Design (XML — for themes.xml, ShapeAppearance, etc.)
+    implementation(libs.android.material)
+
     // ── Konfetti (Confetti Effects) ────────────────────────────────────────
     implementation(libs.konfetti)
 
