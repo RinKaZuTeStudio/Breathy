@@ -103,6 +103,8 @@ breathy/
 │   └── package.json
 ├── docs/
 │   └── Breathy_Complete_Documentation.pdf
+├── .github/workflows/build-apk.yml
+├── codemagic.yaml
 ├── firestore.rules
 ├── storage.rules
 ├── firestore.indexes.json
@@ -111,6 +113,21 @@ breathy/
 ├── gradle.properties
 └── README.md
 ```
+
+---
+
+## Building APK from Tablet (No Computer Needed!)
+
+This project includes **Codemagic** and **GitHub Actions** configurations for building the APK directly from your tablet browser.
+
+### Quick Steps:
+1. Create a **GitHub** account and upload this project
+2. Sign up for **Codemagic** (free plan) at https://codemagic.io
+3. Connect your GitHub repo → Add `GOOGLE_SERVICES_JSON` env var
+4. Click **Start Build** → Wait 5-15 min → Download APK
+5. Install APK on your tablet!
+
+See `Breathy_Codemagic_Guide_Arabic.pdf` for detailed Arabic instructions.
 
 ---
 
@@ -126,7 +143,7 @@ breathy/
 ### 1. Clone & Open
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/RinKaZuTeStudio/Breathy.git
 cd breathy
 # Open in Android Studio
 ```
@@ -148,8 +165,6 @@ cd breathy
 
 # Install on device
 ./gradlew installDebug
-
-# Or run directly from Android Studio
 ```
 
 ### 4. Deploy Cloud Functions
@@ -169,25 +184,6 @@ firebase deploy --only firestore:rules,firestore:indexes
 
 # Deploy Storage rules
 firebase deploy --only storage
-```
-
-### 5. Generate Signed Release
-
-```bash
-# Create keystore (first time only)
-keytool -genkey -v -keystore breathy-release.keystore \
-  -alias breathy -keyalg RSA -keysize 2048 -validity 9125
-
-# Set environment variables
-export BREATHY_KEYSTORE_FILE=path/to/breathy-release.keystore
-export BREATHY_KEYSTORE_PASSWORD=your_password
-export BREATHY_KEY_ALIAS=breathy
-export BREATHY_KEY_PASSWORD=your_key_password
-
-# Build release AAB
-./gradlew bundleRelease
-
-# Output: app/build/outputs/bundle/release/app-release.aab
 ```
 
 ---
@@ -222,27 +218,16 @@ export BREATHY_KEY_PASSWORD=your_key_password
 
 ### Instrumented Tests
 ```bash
-# Start Firebase Emulator
 firebase emulators:start
-
-# Run instrumented tests
 ./gradlew connectedAndroidTest
 ```
-
-### Key Test Areas
-- Daily reward transaction (atomic XP/coin updates, cooldown)
-- XP level calculation (boundary values, 19 levels)
-- Achievement unlock logic (19 achievements, no duplicates)
-- Firestore security rules (owner-only writes, public reads)
-- Cloud Functions (rate limiting, scheduled jobs)
 
 ---
 
 ## Documentation
 
-The complete project documentation is available in:
-
-- **`docs/Breathy_Complete_Documentation.pdf`** - Covers PRD, UI/UX specs, system architecture, data model, testing plan, deployment guide, app store listing, and post-launch plan
+- **`docs/Breathy_Complete_Documentation.pdf`** - PRD, UI/UX specs, architecture, data model, testing, deployment, store listing, post-launch plan
+- **`Breathy_Codemagic_Guide_Arabic.pdf`** - Arabic guide for building APK from tablet
 
 ---
 
