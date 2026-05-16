@@ -43,8 +43,8 @@ android {
         debug {
             isMinifyEnabled = false
             isDebuggable = true
-            applicationIdSuffix = ".debug"
-            versionNameSuffix = "-debug"
+            
+            
             signingConfig = signingConfigs.getByName("debug")
             enableUnitTestCoverage = true
             enableAndroidTestCoverage = true
