@@ -47,7 +47,7 @@ admob = "23.0.0"
 
 # Misc
 konfetti = "2.0.5"
-material3 = "1.2.1"
+material3 = "1.11.0"
 serialization = "1.6.3"
 timber = "5.0.1"
 
