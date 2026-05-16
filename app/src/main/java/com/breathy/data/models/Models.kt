@@ -6,6 +6,7 @@ import com.google.firebase.Timestamp
 import com.google.firebase.firestore.PropertyName
 import kotlinx.parcelize.Parceler
 import kotlinx.parcelize.Parcelize
+import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.TypeParceler
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
@@ -136,7 +137,6 @@ object TimestampSerializer : KSerializer<Timestamp> {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 @Parcelize
-@TypeParceler(Timestamp::class, TimestampParceler::class)
 @Serializable
 data class User(
     @PropertyName("email")
@@ -147,6 +147,7 @@ data class User(
     val age: Int? = null,
     @PropertyName("quitDate")
     @Serializable(with = TimestampSerializer::class)
+    @IgnoredOnParcel
     val quitDate: Timestamp = Timestamp.now(),
     @PropertyName("quitType")
     val quitType: QuitType = QuitType.INSTANT,
@@ -162,9 +163,11 @@ data class User(
     val coins: Int = 0,
     @PropertyName("lastDailyClaim")
     @Serializable(with = TimestampSerializer::class)
+    @IgnoredOnParcel
     val lastDailyClaim: Timestamp? = null,
     @PropertyName("createdAt")
     @Serializable(with = TimestampSerializer::class)
+    @IgnoredOnParcel
     val createdAt: Timestamp = Timestamp.now(),
     @PropertyName("achievements")
     val achievements: List<String> = emptyList(),
@@ -279,7 +282,6 @@ data class User(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 @Parcelize
-@TypeParceler(Timestamp::class, TimestampParceler::class)
 @Serializable
 data class PublicProfile(
     @PropertyName("nickname")
@@ -294,6 +296,7 @@ data class PublicProfile(
     val location: String? = null,
     @PropertyName("quitDate")
     @Serializable(with = TimestampSerializer::class)
+    @IgnoredOnParcel
     val quitDate: Timestamp = Timestamp.now()
 ) : Parcelable {
     companion object {
@@ -313,7 +316,6 @@ data class PublicProfile(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 @Parcelize
-@TypeParceler(Timestamp::class, TimestampParceler::class)
 @Serializable
 data class Story(
     /** Firestore document ID — not stored as a field in the document. */
@@ -338,6 +340,7 @@ data class Story(
     val replyCount: Int = 0,
     @PropertyName("createdAt")
     @Serializable(with = TimestampSerializer::class)
+    @IgnoredOnParcel
     val createdAt: Timestamp = Timestamp.now()
 ) : Parcelable {
     companion object {
@@ -379,7 +382,6 @@ data class Story(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 @Parcelize
-@TypeParceler(Timestamp::class, TimestampParceler::class)
 @Serializable
 data class Reply(
     /** Firestore document ID — not stored as a field in the document. */
@@ -398,6 +400,7 @@ data class Reply(
     val parentReplyId: String? = null,
     @PropertyName("createdAt")
     @Serializable(with = TimestampSerializer::class)
+    @IgnoredOnParcel
     val createdAt: Timestamp = Timestamp.now()
 ) : Parcelable {
     companion object {
@@ -419,7 +422,6 @@ data class Reply(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 @Parcelize
-@TypeParceler(Timestamp::class, TimestampParceler::class)
 @Serializable
 data class FriendRequest(
     /** Firestore document ID — not stored as a field in the document. */
@@ -432,6 +434,7 @@ data class FriendRequest(
     val status: RequestStatus = RequestStatus.PENDING,
     @PropertyName("timestamp")
     @Serializable(with = TimestampSerializer::class)
+    @IgnoredOnParcel
     val timestamp: Timestamp = Timestamp.now()
 ) : Parcelable {
     companion object {
@@ -450,7 +453,6 @@ data class FriendRequest(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 @Parcelize
-@TypeParceler(Timestamp::class, TimestampParceler::class)
 @Serializable
 data class Friendship(
     /** Firestore document ID — not stored as a field in the document. */
@@ -459,6 +461,7 @@ data class Friendship(
     val userIds: List<String> = emptyList(),
     @PropertyName("createdAt")
     @Serializable(with = TimestampSerializer::class)
+    @IgnoredOnParcel
     val createdAt: Timestamp = Timestamp.now()
 ) : Parcelable {
     companion object {
@@ -479,7 +482,6 @@ data class Friendship(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 @Parcelize
-@TypeParceler(Timestamp::class, TimestampParceler::class)
 @Serializable
 data class Chat(
     /** Firestore document ID (deterministic: sorted UIDs joined by "_"). */
@@ -490,9 +492,10 @@ data class Chat(
     val lastMessage: String = "",
     @PropertyName("lastUpdated")
     @Serializable(with = TimestampSerializer::class)
+    @IgnoredOnParcel
     val lastUpdated: Timestamp = Timestamp.now(),
     @PropertyName("typing")
-    @Transient
+    @IgnoredOnParcel
     val typing: Map<String, Timestamp> = emptyMap()
 ) : Parcelable {
     companion object {
@@ -534,7 +537,6 @@ data class Chat(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 @Parcelize
-@TypeParceler(Timestamp::class, TimestampParceler::class)
 @Serializable
 data class Message(
     /** Firestore document ID — not stored as a field in the document. */
@@ -545,6 +547,7 @@ data class Message(
     val text: String = "",
     @PropertyName("timestamp")
     @Serializable(with = TimestampSerializer::class)
+    @IgnoredOnParcel
     val timestamp: Timestamp = Timestamp.now(),
     @PropertyName("read")
     val read: Boolean = false
@@ -568,7 +571,6 @@ data class Message(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 @Parcelize
-@TypeParceler(Timestamp::class, TimestampParceler::class)
 @Serializable
 data class Event(
     /** Firestore document ID (often a named ID like "pushup_challenge_2025"). */
@@ -579,9 +581,11 @@ data class Event(
     val description: String = "",
     @PropertyName("startDate")
     @Serializable(with = TimestampSerializer::class)
+    @IgnoredOnParcel
     val startDate: Timestamp = Timestamp.now(),
     @PropertyName("endDate")
     @Serializable(with = TimestampSerializer::class)
+    @IgnoredOnParcel
     val endDate: Timestamp = Timestamp.now(),
     @PropertyName("active")
     val active: Boolean = false,
@@ -637,7 +641,6 @@ data class Event(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 @Parcelize
-@TypeParceler(Timestamp::class, TimestampParceler::class)
 @Serializable
 data class EventParticipant(
     /** Deterministic ID: {userId}_{eventId}. */
@@ -654,9 +657,11 @@ data class EventParticipant(
     val completed: Boolean = false,
     @PropertyName("completionTimestamp")
     @Serializable(with = TimestampSerializer::class)
+    @IgnoredOnParcel
     val completionTimestamp: Timestamp? = null,
     @PropertyName("joinedAt")
     @Serializable(with = TimestampSerializer::class)
+    @IgnoredOnParcel
     val joinedAt: Timestamp = Timestamp.now(),
     @PropertyName("rank")
     val rank: Int = 0
@@ -685,7 +690,6 @@ data class EventParticipant(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 @Parcelize
-@TypeParceler(Timestamp::class, TimestampParceler::class)
 @Serializable
 data class EventCheckin(
     /** Firestore document ID — auto-generated. */
@@ -702,9 +706,11 @@ data class EventCheckin(
     val status: CheckinStatus = CheckinStatus.PENDING,
     @PropertyName("submittedAt")
     @Serializable(with = TimestampSerializer::class)
+    @IgnoredOnParcel
     val submittedAt: Timestamp = Timestamp.now(),
     @PropertyName("reviewedAt")
     @Serializable(with = TimestampSerializer::class)
+    @IgnoredOnParcel
     val reviewedAt: Timestamp? = null,
     @PropertyName("reviewComment")
     val reviewComment: String? = null
@@ -734,7 +740,6 @@ data class EventCheckin(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 @Parcelize
-@TypeParceler(Timestamp::class, TimestampParceler::class)
 @Serializable
 data class CravingLog(
     /** Firestore document ID — auto-generated. */
@@ -743,6 +748,7 @@ data class CravingLog(
     val userId: String = "",
     @PropertyName("timestamp")
     @Serializable(with = TimestampSerializer::class)
+    @IgnoredOnParcel
     val timestamp: Timestamp = Timestamp.now(),
     @PropertyName("copingMethod")
     val copingMethod: CopingMethod = CopingMethod.BREATHING,
@@ -765,7 +771,6 @@ data class CravingLog(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 @Parcelize
-@TypeParceler(Timestamp::class, TimestampParceler::class)
 @Serializable
 data class Subscription(
     @PropertyName("active")
@@ -774,6 +779,7 @@ data class Subscription(
     val plan: String = "",
     @PropertyName("expiresAt")
     @Serializable(with = TimestampSerializer::class)
+    @IgnoredOnParcel
     val expiresAt: Timestamp = Timestamp.now(),
     @PropertyName("purchaseToken")
     val purchaseToken: String = ""
@@ -799,7 +805,6 @@ data class Subscription(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 @Parcelize
-@TypeParceler(Timestamp::class, TimestampParceler::class)
 @Serializable
 data class CoachMessage(
     /** Firestore document ID — auto-generated. */
@@ -810,6 +815,7 @@ data class CoachMessage(
     val content: String = "",
     @PropertyName("timestamp")
     @Serializable(with = TimestampSerializer::class)
+    @IgnoredOnParcel
     val timestamp: Timestamp = Timestamp.now()
 ) : Parcelable {
     companion object {

@@ -202,7 +202,7 @@ class StoryRepository(
             for (reply in replies.documents) {
                 batch.delete(reply.reference)
             }
-            batch.commit().await()
+            batch.commit().await(); Unit
         } ?: throw IllegalStateException("Delete story timed out after 30 seconds")
     }.onFailure { e ->
         if (e !is CancellationException) Timber.e(e, "Failed to delete story: %s", storyId)

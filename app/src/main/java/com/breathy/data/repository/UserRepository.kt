@@ -116,7 +116,7 @@ class UserRepository(
     suspend fun createUser(user: User): Result<Unit> = runCatching {
         val uid = auth.currentUser?.uid ?: throw IllegalStateException("Not authenticated")
         withTimeoutOrNull(NETWORK_TIMEOUT_MS) {
-            firestore.collection(USERS_COLLECTION).document(uid).set(user).await()
+            firestore.collection(USERS_COLLECTION).document(uid).set(user).await(); Unit
         } ?: throw IllegalStateException("Create user timed out after 30 seconds")
     }.onFailure { e ->
         if (e !is CancellationException) Timber.e(e, "Failed to create user")
@@ -126,7 +126,7 @@ class UserRepository(
     suspend fun updateUser(user: User): Result<Unit> = runCatching {
         val uid = auth.currentUser?.uid ?: throw IllegalStateException("Not authenticated")
         withTimeoutOrNull(NETWORK_TIMEOUT_MS) {
-            firestore.collection(USERS_COLLECTION).document(uid).set(user).await()
+            firestore.collection(USERS_COLLECTION).document(uid).set(user).await(); Unit
         } ?: throw IllegalStateException("Update user timed out after 30 seconds")
     }.onFailure { e ->
         if (e !is CancellationException) Timber.e(e, "Failed to update user")
