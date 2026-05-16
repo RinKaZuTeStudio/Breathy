@@ -9,7 +9,7 @@ agp = "8.2.0"
 kotlin = "1.9.22"
 
 # Compose
-composeBom = "2025.02.00"
+composeBom = "2024.02.00"
 composeCompiler = "1.5.8"
 
 # Firebase
