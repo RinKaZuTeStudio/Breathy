@@ -46,7 +46,7 @@ billing = "6.0.1"
 admob = "23.0.0"
 
 # Misc
-konfetti = "1.3.0"
+konfetti = "2.0.5"
 material3 = "1.2.1"
 serialization = "1.6.3"
 timber = "5.0.1"
