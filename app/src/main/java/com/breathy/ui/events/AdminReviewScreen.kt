@@ -335,7 +335,7 @@ class AdminReviewViewModel(
                         "$successCount check-ins approved"
                     } else {
                         "$successCount approved, $failCount failed"
-                    }
+                    },
                     pendingCheckins = state.pendingCheckins.filterNot { it.id in selectedIds }
                 )
             }
@@ -376,7 +376,7 @@ class AdminReviewViewModel(
                         "$successCount check-ins rejected"
                     } else {
                         "$successCount rejected, $failCount failed"
-                    }
+                    },
                     pendingCheckins = state.pendingCheckins.filterNot { it.id in selectedIds }
                 )
             }
@@ -509,7 +509,7 @@ fun AdminReviewScreen(
                             .semantics {
                                 contentDescription = if (uiState.isBatchMode) "Cancel batch mode" else "Enter batch mode"
                                 role = Role.Button
-                            }
+                            },
                         fontSize = 14.sp
                     )
                     // Using a simple clickable text area instead of TextButton
@@ -535,7 +535,7 @@ fun AdminReviewScreen(
                     titleContentColor = TextPrimary
                 )
             )
-        }
+        },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = BgPrimary
     ) { innerPadding ->
@@ -624,7 +624,7 @@ fun AdminReviewScreen(
                                         if (selected != null) {
                                             viewModel.rejectCheckin(selected.id, uiState.rejectionComment)
                                         }
-                                    }
+                                    },
                                     onDismiss = {
                                         viewModel.toggleCommentField()
                                     }
@@ -1044,7 +1044,7 @@ private fun RejectionCommentSection(
                     .fillMaxWidth()
                     .semantics {
                         contentDescription = "Enter rejection comment"
-                    }
+                    },
                 placeholder = {
                     Text(
                         text = "Explain why this check-in was rejected...",
