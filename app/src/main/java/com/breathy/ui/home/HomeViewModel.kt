@@ -106,12 +106,18 @@ class HomeViewModel(
                 userRepository.observeUser(uid)
                     .debounce(300L) // Prevent rapid-fire updates from Firestore
                     .collect { user ->
-                        val daysSmokeFree = user.daysSmokeFree // property, not method
+                        // User is never null now since observeUser emits fallback User
+                        val daysSmokeFree = user.daysSmokeFree
                         val moneySaved = user.moneySaved()
                         val cigarettesAvoided = user.cigarettesAvoided()
                         val lifeRegained = cigarettesAvoided * 11 // 11 minutes per cigarette
 
-                        val milestones = userRepository.getCurrentMilestones(user.quitDate.toDate())
+                        val milestones = try {
+                            userRepository.getCurrentMilestones(user.quitDate.toDate())
+                        } catch (e: Exception) {
+                            Timber.w(e, "Failed to get health milestones")
+                            emptyList()
+                        }
 
                         val level = rewardRepository.calculateLevel(user.xp)
                         val xpForNextLevel = rewardRepository.getXPForNextLevel(user.xp)
@@ -144,7 +150,7 @@ class HomeViewModel(
                         _uiState.update { state ->
                             state.copy(
                                 isLoading = false,
-                                nickname = user.nickname,
+                                nickname = user.nickname.ifBlank { "Quitter" },
                                 photoURL = user.photoURL,
                                 daysSmokeFree = daysSmokeFree,
                                 moneySaved = moneySaved,
@@ -170,8 +176,13 @@ class HomeViewModel(
                 // Don't treat cancellation as an error
             } catch (e: Exception) {
                 Timber.e(e, "Failed to load user data")
+                // Show a user-friendly error with fallback data instead of crashing
                 _uiState.update {
-                    it.copy(isLoading = false, errorMessage = "Failed to load data: ${e.message}")
+                    it.copy(
+                        isLoading = false,
+                        nickname = it.nickname.ifBlank { "Quitter" },
+                        errorMessage = "Could not load your data. Pull down to retry."
+                    )
                 }
             }
         }

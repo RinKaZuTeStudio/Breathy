@@ -568,12 +568,19 @@ class UserRepository(
         val registration = firestore.collection(USERS_COLLECTION).document(userId)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    Timber.e(error, "observeUser error for %s", userId)
-                    close(error)
+                    Timber.e(error, "observeUser error for %s — emitting fallback user", userId)
+                    // Don't close the flow on error — emit a fallback User so the UI
+                    // can still render instead of crashing. The listener stays active
+                    // and will retry on the next Firestore sync.
+                    trySend(User(nickname = "Quitter", email = ""))
                     return@addSnapshotListener
                 }
                 if (snapshot != null && snapshot.exists()) {
                     trySend(User.fromFirestoreMap(snapshot.data ?: emptyMap()))
+                } else {
+                    // Document doesn't exist yet (e.g. Firestore rules blocked the read
+                    // or onboarding hasn't completed). Emit a fallback user.
+                    trySend(User(nickname = "Quitter", email = ""))
                 }
             }
         awaitClose { registration.remove() }
@@ -589,7 +596,8 @@ class UserRepository(
                 .addSnapshotListener { snapshot, error ->
                     if (error != null) {
                         Timber.e(error, "observePublicProfilesOrderedByXp error")
-                        close(error)
+                        // Don't close — emit empty list as fallback
+                        trySend(emptyList())
                         return@addSnapshotListener
                     }
                     if (snapshot != null) {
@@ -612,7 +620,8 @@ class UserRepository(
                 .addSnapshotListener { snapshot, error ->
                     if (error != null) {
                         Timber.e(error, "observePublicProfilesOrderedByDaysSmokeFree error")
-                        close(error)
+                        // Don't close — emit empty list as fallback
+                        trySend(emptyList())
                         return@addSnapshotListener
                     }
                     if (snapshot != null) {

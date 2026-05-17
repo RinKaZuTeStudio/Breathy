@@ -106,6 +106,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withTimeoutOrNull
 import timber.log.Timber
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -325,11 +326,15 @@ class AuthViewModel(
     private fun checkUserProfileAndNavigate(userId: String) {
         viewModelScope.launch {
             try {
-                val document = firestore.collection("users").document(userId).get().await()
+                // Use a timeout so the user isn't stuck loading forever
+                val document = withTimeoutOrNull(8_000L) {
+                    firestore.collection("users").document(userId).get().await()
+                }
+
                 _uiState.update { it.copy(isLoading = false) }
 
-                // If the user document exists and has a quitDate, onboarding is complete
                 if (document != null && document.exists() && document.contains("quitDate")) {
+                    // User has completed onboarding — go to Home
                     _uiState.update {
                         it.copy(navigationEvent = AuthNavigationEvent.NavigateToHome)
                     }

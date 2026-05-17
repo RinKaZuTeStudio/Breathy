@@ -119,8 +119,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withTimeoutOrNull
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -313,7 +315,7 @@ class OnboardingViewModel(
                     quitDate = quitTimestamp
                 )
 
-                // Use a write batch for atomicity (best-effort)
+                // Use a write batch for atomicity (best-effort with timeout)
                 try {
                     val batch = firestore.batch()
                     batch.set(firestore.collection(USERS_COLLECTION).document(userId), userProfile)
@@ -321,17 +323,25 @@ class OnboardingViewModel(
                         firestore.collection(PUBLIC_PROFILES_COLLECTION).document(userId),
                         publicProfile
                     )
-                    batch.commit().await()
+                    withTimeoutOrNull(10_000L) {
+                        batch.commit().await()
+                    } ?: run {
+                        Timber.w("$TAG: Firestore write timed out during onboarding — continuing")
+                    }
                     Timber.i("$TAG: Onboarding profile saved for uid=%s", userId)
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     // Firestore write failed (e.g. rules not deployed yet).
                     // Don't block the user — they can still use the app.
-                    // The profile will be saved when Firestore rules are deployed.
                     Timber.w(e, "$TAG: Firestore write failed during onboarding — continuing")
                 }
 
                 // Always mark as complete and navigate to home
                 _uiState.update { it.copy(isLoading = false, isComplete = true) }
+            } catch (e: CancellationException) {
+                // Don't treat cancellation as an error, but reset loading state
+                _uiState.update { it.copy(isLoading = false) }
             } catch (e: Exception) {
                 Timber.e(e, "$TAG: Unexpected error during onboarding")
                 // Still navigate to home — don't block the user
