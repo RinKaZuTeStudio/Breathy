@@ -6,11 +6,6 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.EmojiEvents
@@ -31,7 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.sp
@@ -43,22 +38,35 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.breathy.BreathyApplication
+import com.breathy.ui.auth.AuthScreen
+import com.breathy.ui.auth.OnboardingScreen
+import com.breathy.ui.coach.AICoachScreen
+import com.breathy.ui.community.CommunityScreen
+import com.breathy.ui.community.PostStoryScreen
+import com.breathy.ui.community.PublicProfileScreen
+import com.breathy.ui.community.StoryDetailScreen
+import com.breathy.ui.events.AdminReviewScreen
+import com.breathy.ui.events.EventChallengeScreen
+import com.breathy.ui.events.EventCheckinScreen
+import com.breathy.ui.events.EventsScreen
+import com.breathy.ui.friends.ChatScreen
+import com.breathy.ui.friends.FriendsScreen
+import com.breathy.ui.home.HomeScreen
+import com.breathy.ui.leaderboard.LeaderboardScreen
+import com.breathy.ui.profile.AchievementsListScreen
+import com.breathy.ui.profile.ProfileScreen
+import com.breathy.ui.subscription.SubscriptionScreen
 import com.breathy.ui.theme.AccentPrimary
 import com.breathy.ui.theme.BgSurface
 import com.breathy.ui.theme.TextDisabled
 import com.breathy.ui.theme.TextPrimary
+import com.google.firebase.auth.FirebaseAuth
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Route Constants — Type-safe navigation destinations
 // ═══════════════════════════════════════════════════════════════════════════════
 
-/**
- * Centralized route definitions for the entire navigation graph.
- *
- * Routes with path parameters use the `{paramName}` syntax required by
- * Navigation Compose. Helper functions provide type-safe construction of
- * parameterized routes at call sites.
- */
 object BreathyRoutes {
 
     // ── Auth & Onboarding ───────────────────────────────────────────────────
@@ -87,27 +95,12 @@ object BreathyRoutes {
 
     // ── Helper functions for parameterized routes ───────────────────────────
 
-    /** Build a route to the story detail screen for [storyId]. */
     fun storyDetail(storyId: String): String = "storyDetail/$storyId"
-
-    /** Build a route to the public profile screen for [userId]. */
     fun publicProfile(userId: String): String = "publicProfile/$userId"
-
-    /** Build a route to the chat screen for [chatId]. */
     fun chat(chatId: String): String = "chat/$chatId"
-
-    /** Build a route to the event challenge screen for [eventId]. */
     fun eventChallenge(eventId: String): String = "eventChallenge/$eventId"
-
-    /** Build a route to the event check-in screen for [eventId]. */
     fun eventCheckin(eventId: String): String = "eventCheckin/$eventId"
 
-    // ── Route pattern matching ──────────────────────────────────────────────
-
-    /**
-     * Extract the base route name (without parameters) from a full route.
-     * Useful for comparing the current destination against a set of known routes.
-     */
     fun baseRoute(route: String?): String? {
         if (route == null) return null
         return route.substringBefore("/")
@@ -133,10 +126,6 @@ private val bottomNavItems = listOf(
     BottomNavItem(BreathyRoutes.PROFILE, "Profile", Icons.Filled.Person, Icons.Outlined.Person)
 )
 
-/**
- * Set of route patterns that should NOT display the bottom navigation bar.
- * Typically full-screen overlays, auth flows, or detail screens.
- */
 private val noBottomBarRoutes = setOf(
     BreathyRoutes.AUTH,
     BreathyRoutes.ONBOARDING,
@@ -147,7 +136,10 @@ private val noBottomBarRoutes = setOf(
     BreathyRoutes.ADMIN_REVIEW,
     BreathyRoutes.AI_COACH,
     BreathyRoutes.SUBSCRIPTION,
-    BreathyRoutes.ACHIEVEMENTS
+    BreathyRoutes.ACHIEVEMENTS,
+    BreathyRoutes.PUBLIC_PROFILE,
+    BreathyRoutes.FRIENDS,
+    BreathyRoutes.EVENT_CHALLENGE
 )
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -156,7 +148,6 @@ private val noBottomBarRoutes = setOf(
 
 private const val ANIM_DURATION_MS = 250
 
-/** Forward (push) enter transition — slide in from right + fade. */
 private val enterTransition: AnimatedContentTransitionScope<*>.() -> EnterTransition = {
     fadeIn(animationSpec = tween(ANIM_DURATION_MS)) + slideIntoContainer(
         AnimatedContentTransitionScope.SlideDirection.Start,
@@ -164,17 +155,14 @@ private val enterTransition: AnimatedContentTransitionScope<*>.() -> EnterTransi
     )
 }
 
-/** Forward (push) exit transition — fade out. */
 private val exitTransition: AnimatedContentTransitionScope<*>.() -> ExitTransition = {
     fadeOut(animationSpec = tween(ANIM_DURATION_MS))
 }
 
-/** Backward (pop) enter transition — fade in. */
 private val popEnterTransition: AnimatedContentTransitionScope<*>.() -> EnterTransition = {
     fadeIn(animationSpec = tween(ANIM_DURATION_MS))
 }
 
-/** Backward (pop) exit transition — slide out to right + fade. */
 private val popExitTransition: AnimatedContentTransitionScope<*>.() -> ExitTransition = {
     fadeOut(animationSpec = tween(ANIM_DURATION_MS)) + slideOutOfContainer(
         AnimatedContentTransitionScope.SlideDirection.End,
@@ -186,15 +174,6 @@ private val popExitTransition: AnimatedContentTransitionScope<*>.() -> ExitTrans
 // Main Navigation Host
 // ═══════════════════════════════════════════════════════════════════════════════
 
-/**
- * Root composable that hosts the entire Breathy navigation graph.
- *
- * @param deepLinkRoute     A route string pushed from push-notification extras
- *                          or URI deep links. Consumed after navigation.
- * @param onDeepLinkConsumed Callback invoked after the deep-link route has
- *                          been consumed so the caller can clear its state.
- * @param modifier          Optional modifier applied to the root Scaffold.
- */
 @Composable
 fun BreathyNavHost(
     deepLinkRoute: String?,
@@ -217,7 +196,6 @@ fun BreathyNavHost(
                     restoreState = true
                 }
             } catch (e: IllegalArgumentException) {
-                // Route not found in graph — fall back to home
                 navController.navigate(BreathyRoutes.HOME) {
                     popUpTo(navController.graph.findStartDestination().id) {
                         saveState = true
@@ -234,6 +212,28 @@ fun BreathyNavHost(
     val showBottomBar = currentDestination?.route != null &&
             currentDestination?.route !in noBottomBarRoutes
 
+    // ── Navigation helpers ──────────────────────────────────────────────────
+    fun navigateTo(route: String) {
+        navController.navigate(route) {
+            popUpTo(navController.graph.findStartDestination().id) {
+                saveState = true
+            }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
+
+    fun navigateBack() {
+        navController.popBackStack()
+    }
+
+    fun signOutAndNavigateToAuth() {
+        FirebaseAuth.getInstance().signOut()
+        navController.navigate(BreathyRoutes.AUTH) {
+            popUpTo(0) { inclusive = true }
+        }
+    }
+
     // ── Scaffold with conditional bottom bar ────────────────────────────────
     Scaffold(
         modifier = modifier,
@@ -241,15 +241,7 @@ fun BreathyNavHost(
             if (showBottomBar) {
                 BreathyBottomBar(
                     currentDestination = currentDestination,
-                    onNavigate = { route ->
-                        navController.navigate(route) {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
+                    onNavigate = { route -> navigateTo(route) }
                 )
             }
         }
@@ -265,26 +257,38 @@ fun BreathyNavHost(
         ) {
             // ── Auth ────────────────────────────────────────────────────
             composable(BreathyRoutes.AUTH) {
-                // TODO: Replace with AuthScreen(navController)
-                PlaceholderScreen("Auth")
+                AuthScreen(
+                    onNavigateToHome = { navigateTo(BreathyRoutes.HOME) },
+                    onNavigateToOnboarding = { navigateTo(BreathyRoutes.ONBOARDING) }
+                )
             }
 
             // ── Onboarding ──────────────────────────────────────────────
             composable(BreathyRoutes.ONBOARDING) {
-                // TODO: Replace with OnboardingScreen(navController)
-                PlaceholderScreen("Onboarding")
+                OnboardingScreen(
+                    onNavigateToHome = { navigateTo(BreathyRoutes.HOME) }
+                )
             }
 
             // ── Home ────────────────────────────────────────────────────
             composable(BreathyRoutes.HOME) {
-                // TODO: Replace with HomeScreen(navController)
-                PlaceholderScreen("Home")
+                HomeScreen(
+                    onNavigateToProfile = { navigateTo(BreathyRoutes.PROFILE) },
+                    onNavigateToAICoach = { navigateTo(BreathyRoutes.AI_COACH) }
+                )
             }
 
             // ── Community ───────────────────────────────────────────────
             composable(BreathyRoutes.COMMUNITY) {
-                // TODO: Replace with CommunityScreen(navController)
-                PlaceholderScreen("Community")
+                CommunityScreen(
+                    onNavigateToStoryDetail = { storyId ->
+                        navController.navigate(BreathyRoutes.storyDetail(storyId))
+                    },
+                    onNavigateToPostStory = { navigateTo(BreathyRoutes.POST_STORY) },
+                    onNavigateToProfile = { userId ->
+                        navController.navigate(BreathyRoutes.publicProfile(userId))
+                    }
+                )
             }
 
             // ── Story Detail ────────────────────────────────────────────
@@ -296,14 +300,18 @@ fun BreathyNavHost(
             ) { backStackEntry ->
                 val storyId = backStackEntry.arguments?.getString("storyId")
                     ?: return@composable
-                // TODO: Replace with StoryDetailScreen(storyId, navController)
-                PlaceholderScreen("Story Detail: $storyId")
+                StoryDetailScreen(
+                    storyId = storyId,
+                    onNavigateBack = { navigateBack() }
+                )
             }
 
             // ── Post Story ──────────────────────────────────────────────
             composable(BreathyRoutes.POST_STORY) {
-                // TODO: Replace with PostStoryScreen(navController)
-                PlaceholderScreen("Post Story")
+                PostStoryScreen(
+                    onNavigateBack = { navigateBack() },
+                    onStoryPosted = { navigateBack() }
+                )
             }
 
             // ── Public Profile ──────────────────────────────────────────
@@ -315,14 +323,20 @@ fun BreathyNavHost(
             ) { backStackEntry ->
                 val userId = backStackEntry.arguments?.getString("userId")
                     ?: return@composable
-                // TODO: Replace with PublicProfileScreen(userId, navController)
-                PlaceholderScreen("Public Profile: $userId")
+                PublicProfileScreen(
+                    userId = userId,
+                    onNavigateBack = { navigateBack() }
+                )
             }
 
             // ── Friends ─────────────────────────────────────────────────
             composable(BreathyRoutes.FRIENDS) {
-                // TODO: Replace with FriendsScreen(navController)
-                PlaceholderScreen("Friends")
+                FriendsScreen(
+                    onNavigateBack = { navigateBack() },
+                    onNavigateToChat = { chatId ->
+                        navController.navigate(BreathyRoutes.chat(chatId))
+                    }
+                )
             }
 
             // ── Chat ────────────────────────────────────────────────────
@@ -334,20 +348,30 @@ fun BreathyNavHost(
             ) { backStackEntry ->
                 val chatId = backStackEntry.arguments?.getString("chatId")
                     ?: return@composable
-                // TODO: Replace with ChatScreen(chatId, navController)
-                PlaceholderScreen("Chat: $chatId")
+                ChatScreen(
+                    chatId = chatId,
+                    onNavigateBack = { navigateBack() }
+                )
             }
 
             // ── Leaderboard ─────────────────────────────────────────────
             composable(BreathyRoutes.LEADERBOARD) {
-                // TODO: Replace with LeaderboardScreen(navController)
-                PlaceholderScreen("Leaderboard")
+                LeaderboardScreen(
+                    onNavigateBack = { navigateBack() },
+                    onNavigateToProfile = { userId ->
+                        navController.navigate(BreathyRoutes.publicProfile(userId))
+                    }
+                )
             }
 
             // ── Events ──────────────────────────────────────────────────
             composable(BreathyRoutes.EVENTS) {
-                // TODO: Replace with EventsScreen(navController)
-                PlaceholderScreen("Events")
+                EventsScreen(
+                    onNavigateBack = { navigateBack() },
+                    onNavigateToEventDetail = { eventId ->
+                        navController.navigate(BreathyRoutes.eventChallenge(eventId))
+                    }
+                )
             }
 
             // ── Event Challenge Detail ──────────────────────────────────
@@ -359,8 +383,10 @@ fun BreathyNavHost(
             ) { backStackEntry ->
                 val eventId = backStackEntry.arguments?.getString("eventId")
                     ?: return@composable
-                // TODO: Replace with EventChallengeScreen(eventId, navController)
-                PlaceholderScreen("Event Challenge: $eventId")
+                EventChallengeScreen(
+                    eventId = eventId,
+                    onNavigateBack = { navigateBack() }
+                )
             }
 
             // ── Event Check-in ──────────────────────────────────────────
@@ -372,38 +398,48 @@ fun BreathyNavHost(
             ) { backStackEntry ->
                 val eventId = backStackEntry.arguments?.getString("eventId")
                     ?: return@composable
-                // TODO: Replace with EventCheckinScreen(eventId, navController)
-                PlaceholderScreen("Event Check-in: $eventId")
+                EventCheckinScreen(
+                    eventId = eventId,
+                    onNavigateBack = { navigateBack() }
+                )
             }
 
             // ── Admin Review ────────────────────────────────────────────
             composable(BreathyRoutes.ADMIN_REVIEW) {
-                // TODO: Replace with AdminReviewScreen(navController)
-                PlaceholderScreen("Admin Review")
+                AdminReviewScreen(
+                    onNavigateBack = { navigateBack() }
+                )
             }
 
             // ── AI Coach ────────────────────────────────────────────────
             composable(BreathyRoutes.AI_COACH) {
-                // TODO: Replace with AiCoachScreen(navController)
-                PlaceholderScreen("AI Coach")
+                AICoachScreen(
+                    onBack = { navigateBack() }
+                )
             }
 
             // ── Profile ─────────────────────────────────────────────────
             composable(BreathyRoutes.PROFILE) {
-                // TODO: Replace with ProfileScreen(navController)
-                PlaceholderScreen("Profile")
+                ProfileScreen(
+                    onNavigateToAchievements = { navigateTo(BreathyRoutes.ACHIEVEMENTS) },
+                    onNavigateToSubscription = { navigateTo(BreathyRoutes.SUBSCRIPTION) },
+                    onNavigateToAICoach = { navigateTo(BreathyRoutes.AI_COACH) },
+                    onSignOut = { signOutAndNavigateToAuth() }
+                )
             }
 
             // ── Achievements ────────────────────────────────────────────
             composable(BreathyRoutes.ACHIEVEMENTS) {
-                // TODO: Replace with AchievementsScreen(navController)
-                PlaceholderScreen("Achievements")
+                AchievementsListScreen(
+                    onBack = { navigateBack() }
+                )
             }
 
             // ── Subscription ────────────────────────────────────────────
             composable(BreathyRoutes.SUBSCRIPTION) {
-                // TODO: Replace with SubscriptionScreen(navController)
-                PlaceholderScreen("Subscription")
+                SubscriptionScreen(
+                    onBack = { navigateBack() }
+                )
             }
         }
     }
@@ -413,13 +449,6 @@ fun BreathyNavHost(
 // Bottom Navigation Bar
 // ═══════════════════════════════════════════════════════════════════════════════
 
-/**
- * Material 3 bottom navigation bar for Breathy's main destinations.
- *
- * @param currentDestination The current nav destination used to determine
- *                           which item is selected.
- * @param onNavigate         Callback invoked with the route of the tapped item.
- */
 @Composable
 private fun BreathyBottomBar(
     currentDestination: androidx.navigation.NavDestination?,
@@ -458,33 +487,6 @@ private fun BreathyBottomBar(
                     selectedIconColor = AccentPrimary,
                     unselectedIconColor = TextDisabled
                 )
-            )
-        }
-    }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// Placeholder Screen (temporary — replaced by real screen composables)
-// ═══════════════════════════════════════════════════════════════════════════════
-
-/**
- * Temporary placeholder composable used until real screen implementations
- * are wired in. Displays the screen name centered on screen.
- */
-@Composable
-private fun PlaceholderScreen(name: String) {
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = name,
-                color = TextPrimary,
-                fontSize = 24.sp
             )
         }
     }
