@@ -1,6 +1,7 @@
-@file:OptIn(androidx.compose.material.ExperimentalMaterialApi::class)
 
 package com.breathy.ui.leaderboard
+
+@file:OptIn(androidx.compose.material.ExperimentalMaterialApi::class)
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.RepeatMode
