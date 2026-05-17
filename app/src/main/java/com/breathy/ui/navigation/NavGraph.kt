@@ -302,7 +302,10 @@ fun BreathyNavHost(
                     ?: return@composable
                 StoryDetailScreen(
                     storyId = storyId,
-                    onNavigateBack = { navigateBack() }
+                    onNavigateBack = { navigateBack() },
+                    onNavigateToProfile = { userId ->
+                        navController.navigate(BreathyRoutes.publicProfile(userId))
+                    }
                 )
             }
 
@@ -325,7 +328,13 @@ fun BreathyNavHost(
                     ?: return@composable
                 PublicProfileScreen(
                     userId = userId,
-                    onNavigateBack = { navigateBack() }
+                    onNavigateBack = { navigateBack() },
+                    onNavigateToStoryDetail = { sId ->
+                        navController.navigate(BreathyRoutes.storyDetail(sId))
+                    },
+                    onNavigateToChat = { chatId ->
+                        navController.navigate(BreathyRoutes.chat(chatId))
+                    }
                 )
             }
 
