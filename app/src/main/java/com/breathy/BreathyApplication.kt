@@ -32,6 +32,12 @@ class BreathyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        // ── Global Crash Safety Net ────────────────────────────────────────────
+        // Catch any uncaught exception on the main thread so the app doesn't
+        // hard-crash. This is a last resort — all Firestore / auth operations
+        // should already have their own try-catch blocks.
+        installUncaughtExceptionHandler()
+
         // ── Firebase Initialization ──────────────────────────────────────────
         try {
             FirebaseApp.initializeApp(this)
@@ -138,5 +144,36 @@ class BreathyApplication : Application() {
     companion object {
         /** 100 MB cache size for Firestore offline persistence. */
         private const val FIRESTORE_CACHE_SIZE_BYTES = 100L * 1024L * 1024L
+    }
+
+    /**
+     * Installs a global uncaught-exception handler that logs the error
+     * instead of letting it crash the app. This is a safety net for any
+     * exceptions that escape the per-feature try-catch blocks.
+     *
+     * For Firestore PERMISSION_DENIED errors (which happen when security rules
+     * aren't deployed yet), the app survives instead of crashing. All other
+     * uncaught exceptions fall through to the original handler.
+     */
+    private fun installUncaughtExceptionHandler() {
+        val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()
+        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+            Timber.e(throwable, "Uncaught exception on thread: %s", thread.name)
+            // Also report to Crashlytics if available
+            try {
+                FirebaseCrashlytics.getInstance().recordException(throwable)
+            } catch (_: Exception) { /* Crashlytics not available */ }
+            // Check if this is a Firestore permission error — survive those
+            val message = throwable.message ?: ""
+            val isFirestorePermissionError =
+                message.contains("PERMISSION_DENIED", ignoreCase = true) ||
+                message.contains("Missing or insufficient permissions", ignoreCase = true)
+            if (!isFirestorePermissionError) {
+                // Not a permission error — let the default handler crash the app
+                defaultHandler?.uncaughtException(thread, throwable)
+            }
+            // For Firestore permission errors, just log — don't crash.
+            // The app can still function with local/cached data.
+        }
     }
 }

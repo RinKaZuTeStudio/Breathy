@@ -449,7 +449,6 @@ class UserRepository(
                     .limit(1)
                     .get()
                     .await()
-                    Unit
                 if (snapshot.isEmpty) null
                 else snapshot.documents.first().getTimestamp("timestamp")?.toDate()
             }
@@ -468,7 +467,6 @@ class UserRepository(
                     .whereEqualTo("success", true)
                     .get()
                     .await()
-                    Unit
                 snapshot.size()
             } ?: 0
         } catch (e: Exception) {

@@ -269,6 +269,12 @@ class OnboardingViewModel(
         val state = _uiState.value
         val currentUser = firebaseAuth.currentUser
 
+        // Guard: already saving? Prevent double-tap
+        if (state.isLoading) {
+            Timber.w("$TAG: saveProfile called while already loading — ignoring")
+            return
+        }
+
         if (currentUser == null) {
             _uiState.update {
                 it.copy(errorMessage = "You must be signed in to complete onboarding.")
@@ -316,19 +322,32 @@ class OnboardingViewModel(
                 )
 
                 // Use a write batch for atomicity (best-effort with timeout)
+                // Use toFirestoreMap() for explicit field mapping to avoid
+                // enum-serialization issues with Firestore's POJO converter.
                 try {
+                    val userMap = userProfile.toFirestoreMap()
+                    val publicMap = mapOf<String, Any?>(
+                        "nickname" to publicProfile.nickname,
+                        "photoURL" to publicProfile.photoURL,
+                        "daysSmokeFree" to publicProfile.daysSmokeFree,
+                        "xp" to publicProfile.xp,
+                        "quitDate" to publicProfile.quitDate
+                    )
                     val batch = firestore.batch()
-                    batch.set(firestore.collection(USERS_COLLECTION).document(userId), userProfile)
+                    batch.set(firestore.collection(USERS_COLLECTION).document(userId), userMap)
                     batch.set(
                         firestore.collection(PUBLIC_PROFILES_COLLECTION).document(userId),
-                        publicProfile
+                        publicMap
                     )
-                    withTimeoutOrNull(10_000L) {
+                    val result = withTimeoutOrNull(8_000L) {
                         batch.commit().await()
-                    } ?: run {
-                        Timber.w("$TAG: Firestore write timed out during onboarding — continuing")
+                        true
                     }
-                    Timber.i("$TAG: Onboarding profile saved for uid=%s", userId)
+                    if (result == null) {
+                        Timber.w("$TAG: Firestore write timed out during onboarding — continuing")
+                    } else {
+                        Timber.i("$TAG: Onboarding profile saved for uid=%s", userId)
+                    }
                 } catch (e: CancellationException) {
                     throw e
                 } catch (e: Exception) {

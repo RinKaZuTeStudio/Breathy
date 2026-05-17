@@ -106,8 +106,9 @@ class HomeViewModel(
                 userRepository.observeUser(uid)
                     .debounce(300L) // Prevent rapid-fire updates from Firestore
                     .collect { user ->
-                        // User is never null now since observeUser emits fallback User
-                        val daysSmokeFree = user.daysSmokeFree
+                        try {
+                            // User is never null now since observeUser emits fallback User
+                            val daysSmokeFree = user.daysSmokeFree
                         val moneySaved = user.moneySaved()
                         val cigarettesAvoided = user.cigarettesAvoided()
                         val lifeRegained = cigarettesAvoided * 11 // 11 minutes per cigarette
@@ -171,6 +172,13 @@ class HomeViewModel(
 
                         // Check for achievements on data change
                         checkAchievements()
+                        } catch (e: CancellationException) {
+                            throw e
+                        } catch (e: Exception) {
+                            // Individual emission processing failed — log but keep
+                            // the flow alive so future emissions can still update UI
+                            Timber.e(e, "Error processing user data emission")
+                        }
                     }
             } catch (e: CancellationException) {
                 // Don't treat cancellation as an error

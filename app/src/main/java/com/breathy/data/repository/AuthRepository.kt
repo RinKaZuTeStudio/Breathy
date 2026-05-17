@@ -124,9 +124,11 @@ class AuthRepository(
                         nickname = nickname.ifBlank { firebaseUser.displayName ?: "Quitter" },
                         createdAt = com.google.firebase.Timestamp.now()
                     )
+                    // Use toFirestoreMap() for explicit field mapping
+                    // to avoid enum-serialization issues with Firestore's POJO converter
                     firestore.collection(USERS_COLLECTION)
                         .document(firebaseUser.uid)
-                        .set(newUser)
+                        .set(newUser.toFirestoreMap())
                         .await()
 
                     // Create initial public profile
@@ -197,9 +199,10 @@ class AuthRepository(
                             photoURL = firebaseUser.photoUrl?.toString(),
                             createdAt = com.google.firebase.Timestamp.now()
                         )
+                        // Use toFirestoreMap() for explicit field mapping
                         firestore.collection(USERS_COLLECTION)
                             .document(firebaseUser.uid)
-                            .set(newUser)
+                            .set(newUser.toFirestoreMap())
                             .await()
 
                         val publicProfile = mapOf(
