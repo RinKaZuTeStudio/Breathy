@@ -9,5 +9,6 @@
 .cxx
 local.properties
 *.apk
+!Apk/*.apk
 *.aab
 *.log
