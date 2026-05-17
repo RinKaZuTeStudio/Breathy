@@ -658,11 +658,6 @@ private fun Reply.timeAgo(): String {
     }
 }
 
-// Need clickable modifier
-private fun Modifier.clickable(onClick: () -> Unit): Modifier =
-    this.then(
-        androidx.compose.foundation.clickable(onClick = onClick)
-    )
 
 // ═══════════════════════════════════════════════════════════════════════════════
 //  ViewModel

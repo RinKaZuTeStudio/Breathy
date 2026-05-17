@@ -847,7 +847,7 @@ class SubscriptionViewModel(
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 productDetails = productDetailsList.firstOrNull()
                 productDetails?.let { details ->
-                    val offerToken = try { details.oneTimePurchaseOfferDetails?.let { ot -> ot.offerToken } ?: "" } catch (_: Exception) { "" }
+                    val offerToken = details.oneTimePurchaseOfferDetails?.offerToken ?: ""
                     val priceAmount = try { details.oneTimePurchaseOfferDetails?.priceAmountMicros ?: 0 } catch (_: Exception) { 0 }
                     val priceCurrency = try { details.oneTimePurchaseOfferDetails?.priceCurrencyCode ?: "USD" } catch (_: Exception) { "USD" }
                     val formattedPrice = try { details.oneTimePurchaseOfferDetails?.formattedPrice ?: "$1.00" } catch (_: Exception) { "$1.00" }
@@ -872,7 +872,7 @@ class SubscriptionViewModel(
             return
         }
 
-        val offerToken = try { details.oneTimePurchaseOfferDetails?.let { ot -> ot.offerToken } } catch (_: Exception) { null } ?: run {
+        val offerToken: String = details.oneTimePurchaseOfferDetails?.offerToken ?: run {
             _uiState.update {
                 it.copy(errorMessage = "Product pricing not available.")
             }

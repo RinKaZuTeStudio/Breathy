@@ -216,7 +216,7 @@ class AdminReviewViewModel(
                             selectedCheckin = null,
                             successMessage = "Check-in approved"
                         )
-                    },
+                    }
                 },
                 onFailure = { e ->
                     if (e !is CancellationException) {
@@ -226,8 +226,8 @@ class AdminReviewViewModel(
                                 isReviewing = false,
                                 errorMessage = "Failed to approve: ${e.message}"
                             )
-                        },
-                    },
+                        }
+                    }
                 }
             )
         }
@@ -252,7 +252,7 @@ class AdminReviewViewModel(
                             rejectionComment = "",
                             successMessage = "Check-in rejected"
                         )
-                    },
+                    }
                 },
                 onFailure = { e ->
                     if (e !is CancellationException) {
@@ -262,8 +262,8 @@ class AdminReviewViewModel(
                                 isReviewing = false,
                                 errorMessage = "Failed to reject: ${e.message}"
                             )
-                        },
-                    },
+                        }
+                    }
                 }
             )
         }
@@ -335,7 +335,7 @@ class AdminReviewViewModel(
                         "$successCount check-ins approved"
                     } else {
                         "$successCount approved, $failCount failed"
-                    },
+                    }
                     pendingCheckins = state.pendingCheckins.filterNot { it.id in selectedIds }
                 )
             }
@@ -376,7 +376,7 @@ class AdminReviewViewModel(
                         "$successCount check-ins rejected"
                     } else {
                         "$successCount rejected, $failCount failed"
-                    },
+                    }
                     pendingCheckins = state.pendingCheckins.filterNot { it.id in selectedIds }
                 )
             }
@@ -400,9 +400,6 @@ class AdminReviewViewModel(
         }
     }
 
-    // Helper: use await from kotlinx-coroutines-play-services
-    private suspend fun <T> com.google.firebase.tasks.Task<T>.await(): T =
-        kotlinx.coroutines.tasks.await()
 }
 
 class AdminReviewViewModelFactory(
@@ -499,7 +496,7 @@ fun AdminReviewScreen(
                             contentDescription = "Navigate back",
                             tint = TextPrimary
                         )
-                    },
+                    }
                 },
                 actions = {
                     // Batch mode toggle
@@ -512,7 +509,7 @@ fun AdminReviewScreen(
                             .semantics {
                                 contentDescription = if (uiState.isBatchMode) "Cancel batch mode" else "Enter batch mode"
                                 role = Role.Button
-                            },
+                            }
                         fontSize = 14.sp
                     )
                     // Using a simple clickable text area instead of TextButton
@@ -531,14 +528,14 @@ fun AdminReviewScreen(
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 14.sp
                         )
-                    },
+                    }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = BgPrimary,
                     titleContentColor = TextPrimary
                 )
             )
-        },
+        }
         snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = BgPrimary
     ) { innerPadding ->
@@ -581,9 +578,9 @@ fun AdminReviewScreen(
                                     onBatchApprove = { viewModel.batchApprove() },
                                     onBatchReject = {
                                         viewModel.toggleCommentField()
-                                    },
+                                    }
                                 )
-                            },
+                            }
 
                             // ── Pending Check-ins List ─────────────────────
                             LazyColumn(
@@ -606,16 +603,16 @@ fun AdminReviewScreen(
                                                 viewModel.selectCheckin(checkin)
                                             } else {
                                                 viewModel.toggleCheckinSelection(checkin.id)
-                                            },
+                                            }
                                         },
                                         onApprove = { viewModel.approveCheckin(checkin.id) },
                                         onReject = {
                                             viewModel.selectCheckin(checkin)
                                             viewModel.toggleCommentField()
-                                        },
+                                        }
                                     )
-                                },
-                            },
+                                }
+                            }
 
                             // ── Rejection Comment Field ────────────────────
                             if (uiState.showCommentField) {
@@ -626,15 +623,15 @@ fun AdminReviewScreen(
                                         val selected = uiState.selectedCheckin
                                         if (selected != null) {
                                             viewModel.rejectCheckin(selected.id, uiState.rejectionComment)
-                                        },
-                                    },
+                                        }
+                                    }
                                     onDismiss = {
                                         viewModel.toggleCommentField()
-                                    },
+                                    }
                                 )
-                            },
-                        },
-                    },
+                            }
+                        }
+                    }
                 }
             }
 
@@ -701,7 +698,7 @@ private fun CheckinReviewCard(
                     modifier = Modifier.semantics {
                         contentDescription = if (isSelected) "Deselect" else "Select"
                         role = Role.Checkbox
-                    },
+                    }
                 )
                 Spacer(modifier = Modifier.width(8.dp))
             } else {
@@ -774,7 +771,7 @@ private fun CheckinReviewCard(
                         modifier = Modifier.semantics {
                             contentDescription = "Approve check-in"
                             role = Role.Button
-                        },
+                        }
                     ) {
                         Row(
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
@@ -794,7 +791,7 @@ private fun CheckinReviewCard(
                                     tint = AccentPrimary,
                                     modifier = Modifier.size(14.dp)
                                 )
-                            },
+                            }
                             Text(
                                 text = "Approve",
                                 style = MaterialTheme.typography.labelSmall.copy(
@@ -803,8 +800,8 @@ private fun CheckinReviewCard(
                                     fontSize = 11.sp
                                 )
                             )
-                        },
-                    },
+                        }
+                    }
 
                     // Reject button
                     Card(
@@ -818,7 +815,7 @@ private fun CheckinReviewCard(
                         modifier = Modifier.semantics {
                             contentDescription = "Reject check-in"
                             role = Role.Button
-                        },
+                        }
                     ) {
                         Row(
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
@@ -839,8 +836,8 @@ private fun CheckinReviewCard(
                                     fontSize = 11.sp
                                 )
                             )
-                        },
-                    },
+                        }
+                    }
                 }
             }
         }
@@ -900,7 +897,7 @@ private fun BatchActionBar(
                                 fontWeight = FontWeight.Bold
                             )
                         )
-                    },
+                    }
                     Card(
                         onClick = onClearSelection,
                         colors = CardDefaults.cardColors(containerColor = BgSurfaceVariant),
@@ -915,7 +912,7 @@ private fun BatchActionBar(
                                 fontWeight = FontWeight.Bold
                             )
                         )
-                    },
+                    }
                 }
             }
 
@@ -955,7 +952,7 @@ private fun BatchActionBar(
                             contentDescription = null,
                             modifier = Modifier.size(16.dp)
                         )
-                    },
+                    }
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = "Approve ($selectedCount)",
@@ -1047,7 +1044,7 @@ private fun RejectionCommentSection(
                     .fillMaxWidth()
                     .semantics {
                         contentDescription = "Enter rejection comment"
-                    },
+                    }
                 placeholder = {
                     Text(
                         text = "Explain why this check-in was rejected...",

@@ -599,12 +599,7 @@ private fun MessageList(
     // Auto-scroll to bottom when new messages arrive
     LaunchedEffect(messages.size) {
         if (messages.isNotEmpty()) {
-            val lastIndex = groupedMessages.sumOf<Int> { item ->
-                when (item) {
-                    is ChatListItem.DateHeader -> 1
-                    is ChatListItem.MessageItem -> 1
-                }
-            } - 1
+            val lastIndex = groupedMessages.size - 1
             if (lastIndex >= 0) {
                 listState.animateScrollToItem(lastIndex)
             }
