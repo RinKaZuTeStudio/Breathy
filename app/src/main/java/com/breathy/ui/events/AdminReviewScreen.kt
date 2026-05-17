@@ -20,8 +20,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
@@ -29,9 +29,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Comment
 import androidx.compose.material.icons.filled.Pending
 import androidx.compose.material.icons.filled.VideoLibrary
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -106,6 +103,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -163,8 +161,8 @@ class AdminReviewViewModel(
                     .get()
                     .await()
 
-                val checkins = snapshot.documents.mapNotNull { doc ->
-                    doc.data?.let { EventCheckin.fromFirestoreMap(doc.id, it) }
+                val checkins: List<EventCheckin> = snapshot.documents.mapNotNull { doc ->
+                    doc.data?.let { data -> EventCheckin.fromFirestoreMap(doc.id, data) }
                 }
 
                 _uiState.update {
@@ -396,8 +394,6 @@ class AdminReviewViewModel(
     }
 
     // Helper: use await from kotlinx-coroutines-play-services
-    private suspend fun <T> com.google.firebase.tasks.Task<T>.await(): T =
-        kotlinx.coroutines.tasks.await()
 }
 
 class AdminReviewViewModelFactory(
@@ -418,7 +414,7 @@ class AdminReviewViewModelFactory(
 //  AdminReviewScreen — Admin-only check-in video review
 // ═══════════════════════════════════════════════════════════════════════════════
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AdminReviewScreen(
     onNavigateBack: () -> Unit = {},
@@ -464,12 +460,6 @@ fun AdminReviewScreen(
         Timber.d("AdminReviewScreen: composed")
         onDispose { Timber.d("AdminReviewScreen: disposed") }
     }
-
-    val pullRefreshState = rememberPullRefreshState(
-        refreshing = isRefreshing,
-        onRefresh = {
-            isRefreshing = true
-            viewModel.refresh()
             scope.launch {
                 delay(1000)
                 isRefreshing = false
@@ -541,7 +531,7 @@ fun AdminReviewScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .pullRefresh(pullRefreshState)
+                
         ) {
             when {
                 uiState.isLoading -> {
@@ -632,14 +622,6 @@ fun AdminReviewScreen(
                     }
                 }
             }
-
-            PullRefreshIndicator(
-                refreshing = isRefreshing,
-                state = pullRefreshState,
-                modifier = Modifier.align(Alignment.TopCenter),
-                contentColor = AccentPrimary,
-                backgroundColor = BgSurface
-            )
         }
     }
 }

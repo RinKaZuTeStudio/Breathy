@@ -30,8 +30,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Group
-import androidx.compose.material.icons.filled.IncomingMail
-import androidx.compose.material.icons.filled.OutgoingMail
+import androidx.compose.material.icons.filled.Inbox
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
@@ -654,7 +654,7 @@ fun FriendsScreen(
 
         // ── Snackbar ───────────────────────────────────────────────────────
         SnackbarHost(
-            snackbarHostState = snackbarHostState,
+            hostState = snackbarHostState,
             modifier = Modifier.align(Alignment.BottomCenter)
         )
     }

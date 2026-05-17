@@ -20,16 +20,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.EmojiEvents
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Timer
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -245,7 +241,7 @@ class EventsViewModelFactory(
 //  EventsScreen — List of active events/challenges
 // ═══════════════════════════════════════════════════════════════════════════════
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventsScreen(
     onNavigateBack: () -> Unit = {},
@@ -276,12 +272,6 @@ fun EventsScreen(
         Timber.d("EventsScreen: composed")
         onDispose { Timber.d("EventsScreen: disposed") }
     }
-
-    val pullRefreshState = rememberPullRefreshState(
-        refreshing = isRefreshing,
-        onRefresh = {
-            isRefreshing = true
-            viewModel.refresh()
             scope.launch {
                 delay(1000)
                 isRefreshing = false
@@ -320,7 +310,7 @@ fun EventsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .pullRefresh(pullRefreshState)
+                
         ) {
             when {
                 uiState.isLoading && uiState.events.isEmpty() -> {
@@ -367,14 +357,6 @@ fun EventsScreen(
                     }
                 }
             }
-
-            PullRefreshIndicator(
-                refreshing = isRefreshing,
-                state = pullRefreshState,
-                modifier = Modifier.align(Alignment.TopCenter),
-                contentColor = AccentPrimary,
-                backgroundColor = BgSurface
-            )
         }
     }
 }

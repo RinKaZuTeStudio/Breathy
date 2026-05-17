@@ -85,6 +85,7 @@ class AuthRepository(
         return try {
             val user = withTimeoutOrNull(NETWORK_TIMEOUT_MS) {
                 val result = auth.signInWithEmailAndPassword(email, password).await()
+                Unit
                 result.user ?: throw IllegalStateException("Sign in failed: user is null")
             } ?: throw IllegalStateException("Sign in timed out after 30 seconds")
             Result.success(user)
@@ -114,6 +115,7 @@ class AuthRepository(
         return try {
             val user = withTimeoutOrNull(NETWORK_TIMEOUT_MS) {
                 val result = auth.createUserWithEmailAndPassword(email, password).await()
+                Unit
                 val firebaseUser = result.user
                     ?: throw IllegalStateException("Sign up failed: user is null")
 
@@ -127,6 +129,7 @@ class AuthRepository(
                     .document(firebaseUser.uid)
                     .set(newUser)
                     .await()
+                    Unit
 
                 // Create initial public profile
                 val publicProfile = mapOf(
@@ -140,10 +143,12 @@ class AuthRepository(
                     .document(firebaseUser.uid)
                     .set(publicProfile)
                     .await()
+                    Unit
 
                 // Send email verification (best-effort, don't block sign-up on failure)
                 try {
                     firebaseUser.sendEmailVerification().await()
+                    Unit
                 } catch (e: Exception) {
                     Timber.w(e, "Failed to send verification email for %s", email)
                 }
@@ -178,6 +183,7 @@ class AuthRepository(
             val user = withTimeoutOrNull(NETWORK_TIMEOUT_MS) {
                 val credential = GoogleAuthProvider.getCredential(idToken, null)
                 val result = auth.signInWithCredential(credential).await()
+                Unit
                 val firebaseUser = result.user
                     ?: throw IllegalStateException("Google sign-in failed: user is null")
 
@@ -193,6 +199,7 @@ class AuthRepository(
                         .document(firebaseUser.uid)
                         .set(newUser)
                         .await()
+                        Unit
 
                     val publicProfile = mapOf(
                         "nickname" to (firebaseUser.displayName ?: "Quitter"),
@@ -205,6 +212,7 @@ class AuthRepository(
                         .document(firebaseUser.uid)
                         .set(publicProfile)
                         .await()
+                        Unit
                 }
                 firebaseUser
             } ?: throw IllegalStateException("Google sign-in timed out after 30 seconds")
@@ -230,6 +238,7 @@ class AuthRepository(
         return try {
             withTimeoutOrNull(NETWORK_TIMEOUT_MS) {
                 auth.sendPasswordResetEmail(email).await()
+                Unit
             } ?: throw IllegalStateException("Password reset timed out after 30 seconds")
             Result.success(Unit)
         } catch (e: CancellationException) {
@@ -263,6 +272,7 @@ class AuthRepository(
                     firestore.collection(USERS_COLLECTION).document(uid)
                         .update("fcmToken", FieldValue.delete())
                         .await()
+                        Unit
                 }
             }
             auth.signOut()
@@ -291,9 +301,11 @@ class AuthRepository(
                 batch.delete(firestore.collection(PUBLIC_PROFILES_COLLECTION).document(uid))
                 batch.delete(firestore.collection(SUBSCRIPTIONS_COLLECTION).document(uid))
                 batch.commit().await()
+                Unit
 
                 // Delete Firebase Auth account
                 auth.currentUser?.delete()?.await()
+                Unit
             } ?: throw IllegalStateException("Account deletion timed out after 30 seconds")
 
             Timber.i("Account deleted successfully for uid=%s", uid)

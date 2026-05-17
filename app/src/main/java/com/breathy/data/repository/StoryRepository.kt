@@ -69,12 +69,14 @@ class StoryRepository(
                     .document(lastDocumentId)
                     .get(Source.SERVER)
                     .await()
+                    Unit
                 if (lastDoc.exists()) {
                     query = query.startAfter(lastDoc)
                 }
             }
 
             val snapshot = query.get().await()
+            Unit
             snapshot.documents.mapNotNull { doc ->
                 doc.data?.let { Story.fromFirestoreMap(doc.id, it) }
             }
@@ -95,6 +97,7 @@ class StoryRepository(
                 .limit(limit.toLong())
                 .get()
                 .await()
+                Unit
             snapshot.documents.mapNotNull { doc ->
                 doc.data?.let { Story.fromFirestoreMap(doc.id, it) }
             }
@@ -110,6 +113,7 @@ class StoryRepository(
                 .document(storyId)
                 .get(Source.SERVER)
                 .await()
+                Unit
             if (!document.exists()) {
                 throw NoSuchElementException("Story not found: $storyId")
             }
@@ -138,6 +142,7 @@ class StoryRepository(
             val userDoc = firestore.collection(USERS_COLLECTION).document(uid)
                 .get(Source.SERVER)
                 .await()
+                Unit
             val user = User.fromFirestoreMap(userDoc.data ?: emptyMap())
 
             val storyData = mapOf(
@@ -154,6 +159,7 @@ class StoryRepository(
             )
 
             val docRef = firestore.collection(STORIES_COLLECTION).add(storyData).await()
+            Unit
 
             Story(
                 id = docRef.id,
@@ -183,6 +189,7 @@ class StoryRepository(
                 .document(storyId)
                 .get(Source.SERVER)
                 .await()
+                Unit
             if (!storyDoc.exists()) {
                 throw NoSuchElementException("Story not found: $storyId")
             }
@@ -199,6 +206,7 @@ class StoryRepository(
                 .collection(REPLIES_SUBCOLLECTION)
                 .get()
                 .await()
+                Unit
             for (reply in replies.documents) {
                 batch.delete(reply.reference)
             }
@@ -243,6 +251,7 @@ class StoryRepository(
                 ))
                 transaction.update(userRef, "givenLikes", FieldValue.arrayUnion(storyId))
             }.await()
+            Unit
         } ?: throw IllegalStateException("Like story timed out after 30 seconds")
     }.onFailure { e ->
         if (e !is CancellationException) Timber.e(e, "Failed to like story: %s", storyId)
@@ -277,6 +286,7 @@ class StoryRepository(
                 ))
                 transaction.update(userRef, "givenLikes", FieldValue.arrayRemove(storyId))
             }.await()
+            Unit
         } ?: throw IllegalStateException("Unlike story timed out after 30 seconds")
     }.onFailure { e ->
         if (e !is CancellationException) Timber.e(e, "Failed to unlike story: %s", storyId)
@@ -311,12 +321,14 @@ class StoryRepository(
                     .document(lastDocumentId)
                     .get(Source.SERVER)
                     .await()
+                    Unit
                 if (lastDoc.exists()) {
                     query = query.startAfter(lastDoc)
                 }
             }
 
             val snapshot = query.get().await()
+            Unit
             snapshot.documents.mapNotNull { doc ->
                 doc.data?.let { Reply.fromFirestoreMap(doc.id, it) }
             }
@@ -341,6 +353,7 @@ class StoryRepository(
             val userDoc = firestore.collection(USERS_COLLECTION).document(uid)
                 .get(Source.SERVER)
                 .await()
+                Unit
             val user = User.fromFirestoreMap(userDoc.data ?: emptyMap())
 
             val replyData = mutableMapOf<String, Any?>(
@@ -359,11 +372,13 @@ class StoryRepository(
                 .collection(REPLIES_SUBCOLLECTION)
                 .add(replyData)
                 .await()
+                Unit
 
             // Increment reply count on the story
             firestore.collection(STORIES_COLLECTION).document(storyId)
                 .update("replyCount", FieldValue.increment(1))
                 .await()
+                Unit
 
             Reply(
                 id = docRef.id,

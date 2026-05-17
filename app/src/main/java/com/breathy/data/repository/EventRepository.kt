@@ -68,6 +68,7 @@ class EventRepository(
                 .whereEqualTo("active", true)
                 .get(Source.SERVER)
                 .await()
+                Unit
             snapshot.documents.mapNotNull { doc ->
                 doc.data?.let { Event.fromFirestoreMap(doc.id, it) }
             }
@@ -82,6 +83,7 @@ class EventRepository(
             val document = firestore.collection(EVENTS_COLLECTION).document(eventId)
                 .get(Source.SERVER)
                 .await()
+                Unit
             if (!document.exists()) {
                 throw NoSuchElementException("Event not found: $eventId")
             }
@@ -108,6 +110,7 @@ class EventRepository(
                 .document(participantId)
                 .get(Source.SERVER)
                 .await()
+                Unit
 
             if (existingDoc.exists()) {
                 throw IllegalStateException("Already joined this event")
@@ -126,6 +129,7 @@ class EventRepository(
             firestore.collection(EVENT_PARTICIPANTS_COLLECTION).document(participantId)
                 .set(participantData)
                 .await()
+                Unit
 
             EventParticipant(
                 id = participantId,
@@ -153,6 +157,7 @@ class EventRepository(
                 .document(participantId)
                 .get(Source.SERVER)
                 .await()
+                Unit
             if (!document.exists()) null
             else EventParticipant.fromFirestoreMap(document.id, document.data ?: emptyMap())
         } ?: throw IllegalStateException("Get participant timed out after 30 seconds")
@@ -180,6 +185,7 @@ class EventRepository(
             val videoRef = storage.reference
                 .child("checkins/$eventId/${uid}_${System.currentTimeMillis()}.mp4")
             videoRef.putFile(videoUri).await()
+            Unit
             val downloadUrl = videoRef.downloadUrl.await().toString()
 
             val checkinData = mapOf(
@@ -194,6 +200,7 @@ class EventRepository(
             val docRef = firestore.collection(EVENT_CHECKINS_COLLECTION)
                 .add(checkinData)
                 .await()
+                Unit
 
             EventCheckin(
                 id = docRef.id,
@@ -221,6 +228,7 @@ class EventRepository(
                 .orderBy("dayNumber", Query.Direction.ASCENDING)
                 .get(Source.SERVER)
                 .await()
+                Unit
             snapshot.documents.mapNotNull { doc ->
                 doc.data?.let { EventCheckin.fromFirestoreMap(doc.id, it) }
             }
@@ -257,6 +265,7 @@ class EventRepository(
             firestore.collection(EVENT_CHECKINS_COLLECTION).document(checkinId)
                 .update(updates)
                 .await()
+                Unit
 
             // If approved, update the participant's stats in a transaction
             if (approved) {
@@ -264,6 +273,7 @@ class EventRepository(
                     .document(checkinId)
                     .get(Source.SERVER)
                     .await()
+                    Unit
                 val checkinData = checkinDoc.data ?: return@withTimeoutOrNull
                 val userId = checkinData["userId"] as? String ?: return@withTimeoutOrNull
                 val eventId = checkinData["eventId"] as? String ?: return@withTimeoutOrNull
@@ -283,6 +293,7 @@ class EventRepository(
                         "currentStreak" to (currentStreak + 1)
                     ))
                 }.await()
+                Unit
             }
         } ?: throw IllegalStateException("Review check-in timed out after 30 seconds")
     }.onFailure { e ->
@@ -309,6 +320,7 @@ class EventRepository(
                 .limit(limit.toLong())
                 .get(Source.SERVER)
                 .await()
+                Unit
 
             val participants = snapshot.documents.mapNotNull { doc ->
                 doc.data?.let { EventParticipant.fromFirestoreMap(doc.id, it) }
@@ -323,6 +335,7 @@ class EventRepository(
                                 .document(participant.userId)
                                 .get()
                                 .await()
+                                Unit
                             val profile = if (profileDoc.exists()) {
                                 PublicProfile.fromFirestoreMap(profileDoc.data ?: emptyMap())
                             } else null

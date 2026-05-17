@@ -49,7 +49,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import coil3.request.ImageRequest
 import com.breathy.data.models.Story
 import com.breathy.ui.theme.AccentPink
 import com.breathy.ui.theme.AccentPrimary

@@ -26,12 +26,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
+import androidx.compose.material3.Icon
 import androidx.compose.material.icons.filled.Savings
-import androidx.compose.material.pullrefresh.PullRefreshIndicator
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FloatingActionButton
@@ -91,7 +88,7 @@ import timber.log.Timber
 //  HomeScreen — Main dashboard composable
 // ═══════════════════════════════════════════════════════════════════════════════
 
-@OptIn(ExperimentalMaterialApi::class)
+
 @Composable
 fun HomeScreen(
     onNavigateToNotifications: () -> Unit = {},
@@ -169,17 +166,6 @@ fun HomeScreen(
     }
 
     // Pull-to-refresh
-    val pullRefreshState = rememberPullRefreshState(
-        refreshing = isRefreshing,
-        onRefresh = {
-            isRefreshing = true
-            viewModel.refresh()
-            scope.launch {
-                delay(1000)
-                isRefreshing = false
-            }
-        }
-    )
 
     // Staggered entrance animations
     var heroVisible by remember { mutableStateOf(false) }
@@ -224,7 +210,7 @@ fun HomeScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .pullRefresh(pullRefreshState)
+                    
             ) {
                 Column(
                     modifier = Modifier
@@ -348,14 +334,6 @@ fun HomeScreen(
 
                     Spacer(modifier = Modifier.height(80.dp)) // Bottom padding for FAB
                 }
-
-                PullRefreshIndicator(
-                    refreshing = isRefreshing,
-                    state = pullRefreshState,
-                    modifier = Modifier.align(Alignment.TopCenter),
-                    contentColor = AccentPrimary,
-                    backgroundColor = BgSurface
-                )
             }
         }
 

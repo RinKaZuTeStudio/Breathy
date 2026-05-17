@@ -76,7 +76,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.FontFamily
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -235,7 +235,7 @@ class EventChallengeViewModel(
                         it.copy(
                             isJoined = true,
                             participant = participant,
-                            canCheckinToday = event?.isCurrentlyActive() == true
+                            canCheckinToday = _uiState.value.event?.isCurrentlyActive() == true
                         )
                     }
                 },

@@ -1,12 +1,11 @@
 package com.breathy.data.models
 
-import android.os.Parcel
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.PropertyName
-import kotlinx.parcelize.TypeParceler
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -90,23 +89,6 @@ enum class MessageRole(val value: String) {
     companion object {
         fun fromValue(value: String): MessageRole =
             entries.find { it.value == value } ?: USER
-    }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
-//  Parceler for Firebase Timestamp — required for @Parcelize on models
-// ═══════════════════════════════════════════════════════════════════════════════
-
-object TimestampParceler : Parceler<Timestamp> {
-    override fun create(parcel: Parcel): Timestamp {
-        val seconds = parcel.readLong()
-        val nanoseconds = parcel.readInt()
-        return Timestamp(seconds, nanoseconds)
-    }
-
-    override fun Timestamp.write(parcel: Parcel, flags: Int) {
-        parcel.writeLong(seconds)
-        parcel.writeInt(nanoseconds)
     }
 }
 
@@ -475,7 +457,8 @@ data class Chat(
     @Serializable(with = TimestampSerializer::class)
         val lastUpdated: Timestamp = Timestamp.now(),
     @PropertyName("typing")
-        val typing: Map<String, Timestamp> = emptyMap()
+        @Contextual
+        val typing: Map<String, @Contextual Timestamp> = emptyMap()
 ){
     companion object {
         /** Generate a deterministic chat ID from two user IDs. */

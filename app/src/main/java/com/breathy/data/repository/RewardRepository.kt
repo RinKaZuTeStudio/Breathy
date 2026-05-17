@@ -244,6 +244,7 @@ class RewardRepository(
             val userDoc = firestore.collection(USERS_COLLECTION).document(userId)
                 .get(Source.SERVER)
                 .await()
+                Unit
             if (!userDoc.exists()) throw NoSuchElementException("User not found: $userId")
             val unlockedIds = (userDoc.get("achievements") as? List<*>)
                 ?.filterIsInstance<String>() ?: emptyList()
@@ -269,6 +270,7 @@ class RewardRepository(
                 val userDoc = firestore.collection(USERS_COLLECTION).document(userId)
                     .get(Source.SERVER)
                     .await()
+                    Unit
                 if (!userDoc.exists()) throw NoSuchElementException("User not found: $userId")
                 val user = User.fromFirestoreMap(userDoc.data ?: emptyMap())
                 val newlyUnlocked = checkAndUnlockAchievementsInternal(userId, user)
@@ -333,6 +335,7 @@ class RewardRepository(
                                 transaction.update(profileRef, "xp", newXp)
                             }
                         }.await()
+                        Unit
 
                         newlyUnlocked.add(achievement)
                         Timber.i("Achievement unlocked: %s for user: %s", achievementId, userId)
@@ -369,6 +372,7 @@ class RewardRepository(
                     transaction.update(profileRef, "xp", newXp)
                     newXp
                 }.await()
+                Unit
             } ?: throw IllegalStateException("Grant XP timed out after 30 seconds")
         }.onFailure { e ->
             if (e !is CancellationException) Timber.e(e, "Failed to grant XP to user: %s (reason: %s)", userId, reason)
@@ -390,6 +394,7 @@ class RewardRepository(
                     transaction.update(userRef, "coins", newCoins)
                     newCoins
                 }.await()
+                Unit
             } ?: throw IllegalStateException("Grant coins timed out after 30 seconds")
         }.onFailure { e ->
             if (e !is CancellationException) Timber.e(e, "Failed to grant coins to user: %s (reason: %s)", userId, reason)

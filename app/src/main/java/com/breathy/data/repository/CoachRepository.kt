@@ -125,6 +125,7 @@ class CoachRepository(
                 "timestamp" to FieldValue.serverTimestamp()
             )
             coachChatsCollection.add(userMessageData).await()
+            Unit
 
             // Record the message timestamp for rate limiting
             recordMessageTimestamp()
@@ -139,6 +140,7 @@ class CoachRepository(
                 functions.getHttpsCallable(CLOUD_FUNCTION_NAME)
                     .call(functionData)
                     .await()
+                    Unit
             } catch (e: Exception) {
                 Timber.e(e, "Cloud Function call failed for user: %s", uid)
                 // If the function fails, return a fallback response
@@ -160,6 +162,7 @@ class CoachRepository(
                 "timestamp" to FieldValue.serverTimestamp()
             )
             coachChatsCollection.add(assistantMessageData).await()
+            Unit
 
             CoachMessage(
                 role = MessageRole.ASSISTANT,
@@ -186,6 +189,7 @@ class CoachRepository(
                 .limitToLast(limit.toLong())
                 .get(Source.SERVER)
                 .await()
+                Unit
             snapshot.documents.mapNotNull { doc ->
                 doc.data?.let { CoachMessage.fromFirestoreMap(doc.id, it) }
             }
@@ -201,6 +205,7 @@ class CoachRepository(
     suspend fun clearHistory(): Result<Unit> = runCatching {
         withTimeoutOrNull(NETWORK_TIMEOUT_MS) {
             val snapshot = coachChatsCollection.get().await()
+            Unit
             if (snapshot.isEmpty) return@withTimeoutOrNull
 
             // Firestore batches support up to 500 operations
@@ -213,6 +218,7 @@ class CoachRepository(
                 operationCount++
                 if (operationCount >= 499) {
                     batch.commit().await()
+                    Unit
                     batch = firestore.batch()
                     operationCount = 0
                 }
@@ -220,6 +226,7 @@ class CoachRepository(
 
             if (operationCount > 0) {
                 batch.commit().await()
+                Unit
             }
 
             // Clear rate limit tracking

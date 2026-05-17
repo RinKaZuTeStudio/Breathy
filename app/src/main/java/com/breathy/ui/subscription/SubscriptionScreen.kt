@@ -11,6 +11,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -99,6 +100,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.delay
 import timber.log.Timber
 import java.text.NumberFormat
 import java.util.Currency
@@ -110,6 +113,8 @@ import java.util.Locale
 
 private const val PRODUCT_ID_SUPPORTER = "breathy_supporter"
 
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 fun SubscriptionScreen(
     onBack: () -> Unit = {},
@@ -842,7 +847,7 @@ class SubscriptionViewModel(
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 productDetails = productDetailsList.firstOrNull()
                 productDetails?.let { details ->
-                    val offerToken = details.oneTimePurchaseOfferDetails?.offerToken
+                    val offerToken = details.oneTimePurchaseOfferDetails?.offerToken ?: ""
                     val priceAmount = details.oneTimePurchaseOfferDetails?.priceAmountMicros ?: 0
                     val priceCurrency = details.oneTimePurchaseOfferDetails?.priceCurrencyCode ?: "USD"
                     val formattedPrice = details.oneTimePurchaseOfferDetails?.formattedPrice ?: "$1.00"
@@ -867,7 +872,7 @@ class SubscriptionViewModel(
             return
         }
 
-        val offerToken = details.oneTimePurchaseOfferDetails?.offerToken ?: run {
+        val offerToken = details.oneTimePurchaseOfferDetails?.offerToken ?: "" ?: run {
             _uiState.update {
                 it.copy(errorMessage = "Product pricing not available.")
             }

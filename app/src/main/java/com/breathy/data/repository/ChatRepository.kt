@@ -62,6 +62,7 @@ class ChatRepository(
         withTimeoutOrNull(NETWORK_TIMEOUT_MS) {
             val chatRef = firestore.collection(CHATS_COLLECTION).document(chatId)
             val chatDoc = chatRef.get(Source.SERVER).await()
+            Unit
 
             if (chatDoc.exists()) {
                 return@withTimeoutOrNull Chat.fromFirestoreMap(chatId, chatDoc.data ?: emptyMap())
@@ -75,6 +76,7 @@ class ChatRepository(
                 "typing" to emptyMap<String, Any>()
             )
             chatRef.set(chatData).await()
+            Unit
 
             Chat(
                 id = chatId,
@@ -100,6 +102,7 @@ class ChatRepository(
                 .orderBy("lastUpdated", Query.Direction.DESCENDING)
                 .get(Source.SERVER)
                 .await()
+                Unit
             snapshot.documents.mapNotNull { doc ->
                 doc.data?.let { Chat.fromFirestoreMap(doc.id, it) }
             }
@@ -133,6 +136,7 @@ class ChatRepository(
                 .collection(MESSAGES_SUBCOLLECTION)
                 .add(messageData)
                 .await()
+                Unit
 
             // Update the parent chat document with preview and clear typing
             val previewText = text.take(MESSAGE_PREVIEW_LENGTH)
@@ -141,6 +145,7 @@ class ChatRepository(
                 "lastUpdated" to FieldValue.serverTimestamp(),
                 "typing.$uid" to FieldValue.delete()
             )).await()
+            Unit
 
             Message(
                 id = msgRef.id,
@@ -172,6 +177,7 @@ class ChatRepository(
                 .whereNotEqualTo("senderId", uid)
                 .get(Source.SERVER)
                 .await()
+                Unit
 
             if (unreadMessages.isEmpty) return@withTimeoutOrNull
 
@@ -230,6 +236,7 @@ class ChatRepository(
                 .limitToLast(limit.toLong())
                 .get(Source.SERVER)
                 .await()
+                Unit
             snapshot.documents.mapNotNull { doc ->
                 doc.data?.let { Message.fromFirestoreMap(doc.id, it) }
             }
@@ -249,6 +256,7 @@ class ChatRepository(
                 .whereArrayContains("participants", currentUserId)
                 .get(Source.SERVER)
                 .await()
+                Unit
 
             var totalUnread = 0
             for (chatDoc in chats.documents) {
@@ -257,6 +265,7 @@ class ChatRepository(
                     .whereNotEqualTo("senderId", currentUserId)
                     .get()
                     .await()
+                    Unit
                 totalUnread += unread.size()
             }
             totalUnread

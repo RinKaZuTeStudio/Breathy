@@ -157,7 +157,6 @@ dependencies {
     implementation(libs.android.material)
 
     // ── Konfetti (Confetti Effects) ────────────────────────────────────────
-    implementation(libs.konfetti)
 
     // ── Kotlin Serialization ───────────────────────────────────────────────
     implementation(libs.kotlinx.serialization.json)

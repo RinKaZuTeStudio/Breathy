@@ -457,7 +457,7 @@ class VideoUploader(
             .setCustomMetadata("fileSizeBytes", fileSize.toString())
             .build()
 
-        val uri = androidx.core.net.UriCompat.toUri(file)
+        val uri = android.net.Uri.fromFile(file)
         val uploadTask = storageRef.putFile(uri, metadata)
 
         // Store reference for cancellation

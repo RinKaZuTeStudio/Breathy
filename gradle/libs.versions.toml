@@ -46,7 +46,6 @@ billing = "6.0.1"
 admob = "23.0.0"
 
 # Misc
-konfetti = "2.0.5"
 material3 = "1.12.0"
 serialization = "1.6.3"
 timber = "5.0.1"
@@ -126,7 +125,6 @@ admob = { group = "com.google.android.gms", name = "play-services-ads", version.
 android-material = { group = "com.google.android.material", name = "material", version.ref = "material3" }
 
 # Konfetti
-konfetti = { group = "nl.dionsegijn", name = "konfetti-compose", version.ref = "konfetti" }
 
 # Serialization
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization" }

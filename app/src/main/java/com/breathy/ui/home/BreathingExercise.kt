@@ -387,9 +387,9 @@ fun BreathingExercise(
                                 onCancel()
                             },
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.Transparent
-                            ),
-                            contentColor = TextSecondary
+                                containerColor = Color.Transparent,
+                                contentColor = TextSecondary
+                            )
                         ) {
                             Text(text = "Cancel", fontWeight = FontWeight.Medium)
                         }

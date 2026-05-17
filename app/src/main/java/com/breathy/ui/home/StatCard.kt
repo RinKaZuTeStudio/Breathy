@@ -184,7 +184,7 @@ fun StatCard(
                 Canvas(modifier = Modifier.matchParentSize()) {
                     drawRoundRect(
                         color = accentColor.copy(alpha = glowAlpha),
-                        strokeWidth = 2.dp.toPx(),
+                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = 2.dp.toPx()),
                         cornerRadius = CornerRadius(16.dp.toPx())
                     )
                 }

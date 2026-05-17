@@ -75,6 +75,7 @@ class FriendRepository(
                 .limit(1)
                 .get(Source.SERVER)
                 .await()
+                Unit
 
             if (!existingOutgoing.isEmpty) {
                 throw IllegalStateException("Friend request already sent")
@@ -86,6 +87,7 @@ class FriendRepository(
                 .limit(1)
                 .get(Source.SERVER)
                 .await()
+                Unit
 
             if (!existingIncoming.isEmpty) {
                 throw IllegalStateException("This user already sent you a friend request")
@@ -96,6 +98,7 @@ class FriendRepository(
                 .whereArrayContains("userIds", uid)
                 .get(Source.SERVER)
                 .await()
+                Unit
 
             val alreadyFriends = existingFriendship.documents.any { doc ->
                 val userIds = doc.get("userIds") as? List<*>
@@ -116,6 +119,7 @@ class FriendRepository(
             val docRef = firestore.collection(FRIEND_REQUESTS_COLLECTION)
                 .add(requestData)
                 .await()
+                Unit
 
             FriendRequest(
                 id = docRef.id,
@@ -141,6 +145,7 @@ class FriendRepository(
                 .document(requestId)
                 .get(Source.SERVER)
                 .await()
+                Unit
             if (!requestDoc.exists()) {
                 throw NoSuchElementException("Friend request not found")
             }
@@ -164,11 +169,13 @@ class FriendRepository(
             val friendshipRef = firestore.collection(FRIENDSHIPS_COLLECTION)
                 .add(friendshipData)
                 .await()
+                Unit
 
             // Update request status
             firestore.collection(FRIEND_REQUESTS_COLLECTION).document(requestId)
                 .update("status", RequestStatus.ACCEPTED.value)
                 .await()
+                Unit
 
             Friendship(
                 id = friendshipRef.id,
@@ -191,6 +198,7 @@ class FriendRepository(
                 .document(requestId)
                 .get(Source.SERVER)
                 .await()
+                Unit
 
             if (requestDoc.exists()) {
                 val toUserId = requestDoc.getString("toUserId")
@@ -221,6 +229,7 @@ class FriendRepository(
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .get(Source.SERVER)
                 .await()
+                Unit
             snapshot.documents.mapNotNull { doc ->
                 doc.data?.let { FriendRequest.fromFirestoreMap(doc.id, it) }
             }
@@ -238,6 +247,7 @@ class FriendRepository(
                 .orderBy("timestamp", Query.Direction.DESCENDING)
                 .get(Source.SERVER)
                 .await()
+                Unit
             snapshot.documents.mapNotNull { doc ->
                 doc.data?.let { FriendRequest.fromFirestoreMap(doc.id, it) }
             }
@@ -260,6 +270,7 @@ class FriendRepository(
                 .whereArrayContains("userIds", currentUserId)
                 .get(Source.SERVER)
                 .await()
+                Unit
 
             val friendIds = friendships.documents.mapNotNull { doc ->
                 val userIds = doc.get("userIds") as? List<*>
@@ -275,6 +286,7 @@ class FriendRepository(
                                 .document(id)
                                 .get(Source.SERVER)
                                 .await()
+                                Unit
                             if (profileDoc.exists()) {
                                 PublicProfile.fromFirestoreMap(profileDoc.data ?: emptyMap())
                             } else null
@@ -314,6 +326,7 @@ class FriendRepository(
                 .whereArrayContains("userIds", currentUserId)
                 .get(Source.SERVER)
                 .await()
+                Unit
             snapshot.documents.any { doc ->
                 val userIds = doc.get("userIds") as? List<*>
                 userIds?.contains(otherUserId) == true
@@ -404,6 +417,7 @@ class FriendRepository(
                                     .document(id)
                                     .get()
                                     .await()
+                                    Unit
                                 if (profileDoc.exists()) {
                                     PublicProfile.fromFirestoreMap(profileDoc.data ?: emptyMap())
                                 } else null

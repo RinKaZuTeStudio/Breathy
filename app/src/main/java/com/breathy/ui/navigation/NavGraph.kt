@@ -157,24 +157,30 @@ private val noBottomBarRoutes = setOf(
 private const val ANIM_DURATION_MS = 250
 
 /** Forward (push) enter transition — slide in from right + fade. */
-private val enterTransition: EnterTransition = fadeIn(
-    animationSpec = tween(ANIM_DURATION_MS)
-) + AnimatedContentTransitionScope.SlideDirection.Start.tween(ANIM_DURATION_MS)
+private val enterTransition: AnimatedContentTransitionScope<*>.() -> EnterTransition = {
+    fadeIn(animationSpec = tween(ANIM_DURATION_MS)) + slideIntoContainer(
+        AnimatedContentTransitionScope.SlideDirection.Start,
+        animationSpec = tween(ANIM_DURATION_MS)
+    )
+}
 
 /** Forward (push) exit transition — fade out. */
-private val exitTransition: ExitTransition = fadeOut(
-    animationSpec = tween(ANIM_DURATION_MS)
-)
+private val exitTransition: AnimatedContentTransitionScope<*>.() -> ExitTransition = {
+    fadeOut(animationSpec = tween(ANIM_DURATION_MS))
+}
 
 /** Backward (pop) enter transition — fade in. */
-private val popEnterTransition: EnterTransition = fadeIn(
-    animationSpec = tween(ANIM_DURATION_MS)
-)
+private val popEnterTransition: AnimatedContentTransitionScope<*>.() -> EnterTransition = {
+    fadeIn(animationSpec = tween(ANIM_DURATION_MS))
+}
 
 /** Backward (pop) exit transition — slide out to right + fade. */
-private val popExitTransition: ExitTransition = fadeOut(
-    animationSpec = tween(ANIM_DURATION_MS)
-) + AnimatedContentTransitionScope.SlideDirection.End.tween(ANIM_DURATION_MS)
+private val popExitTransition: AnimatedContentTransitionScope<*>.() -> ExitTransition = {
+    fadeOut(animationSpec = tween(ANIM_DURATION_MS)) + slideOutOfContainer(
+        AnimatedContentTransitionScope.SlideDirection.End,
+        animationSpec = tween(ANIM_DURATION_MS)
+    )
+}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Main Navigation Host
@@ -252,10 +258,10 @@ fun BreathyNavHost(
             navController = navController,
             startDestination = BreathyRoutes.AUTH,
             modifier = Modifier.padding(innerPadding),
-            enterTransition = enterTransition,
-            exitTransition = exitTransition,
-            popEnterTransition = popEnterTransition,
-            popExitTransition = popExitTransition
+            enterTransition = { enterTransition() },
+            exitTransition = { exitTransition() },
+            popEnterTransition = { popEnterTransition() },
+            popExitTransition = { popExitTransition() }
         ) {
             // ── Auth ────────────────────────────────────────────────────
             composable(BreathyRoutes.AUTH) {
