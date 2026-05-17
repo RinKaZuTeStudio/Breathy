@@ -120,6 +120,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withTimeoutOrNull
@@ -175,10 +177,15 @@ class OnboardingViewModel(
         private const val TAG = "OnboardingViewModel"
         private const val USERS_COLLECTION = "users"
         private const val PUBLIC_PROFILES_COLLECTION = "publicProfiles"
+        private const val FIRESTORE_WRITE_TIMEOUT_MS = 10_000L
+        private const val FALLBACK_NAVIGATION_DELAY_MS = 12_000L
     }
 
     private val _uiState = MutableStateFlow(OnboardingUiState())
     val uiState: StateFlow<OnboardingUiState> = _uiState.asStateFlow()
+
+    /** Track the current save job so we can cancel it if needed. */
+    private var saveJob: Job? = null
 
     init {
         recalculateSavings()
@@ -264,6 +271,11 @@ class OnboardingViewModel(
      * Save the onboarding profile data to Firestore.
      * Creates both the private User document and the public PublicProfile document
      * in an atomic write batch.
+     *
+     * The write is best-effort: if Firestore is unavailable (e.g. rules not
+     * published yet, network timeout, permission denied), the user still
+     * navigates to the home screen. A safety-net timer guarantees navigation
+     * even if the coroutine hangs.
      */
     fun saveProfile() {
         val state = _uiState.value
@@ -274,6 +286,9 @@ class OnboardingViewModel(
             Timber.w("$TAG: saveProfile called while already loading — ignoring")
             return
         }
+
+        // Cancel any previous save job (shouldn't happen, but defensive)
+        saveJob?.cancel()
 
         if (currentUser == null) {
             _uiState.update {
@@ -295,10 +310,28 @@ class OnboardingViewModel(
 
         _uiState.update { it.copy(isLoading = true, errorMessage = null, nicknameError = null) }
 
-        viewModelScope.launch {
+        // ── Safety-net: guarantee navigation even if the coroutine hangs ──────
+        // This prevents the user from being stuck on loading forever.
+        val safetyNetJob = viewModelScope.launch {
+            delay(FALLBACK_NAVIGATION_DELAY_MS)
+            if (_uiState.value.isLoading && !_uiState.value.isComplete) {
+                Timber.w("$TAG: Safety-net triggered — forcing navigation to home")
+                _uiState.update { it.copy(isLoading = false, isComplete = true) }
+            }
+        }
+
+        saveJob = viewModelScope.launch {
             try {
                 val userId = currentUser.uid
                 val quitTimestamp = Timestamp(Date(state.quitDate))
+
+                // Safely resolve photo URL — avoid crashes from invalid URIs
+                val resolvedPhotoUrl: String? = try {
+                    state.photoUri?.toString() ?: currentUser.photoUrl?.toString()
+                } catch (e: Exception) {
+                    Timber.w(e, "$TAG: Failed to resolve photo URI — using null")
+                    null
+                }
 
                 // Build the typed User model — matching the Firestore schema
                 val userProfile = User(
@@ -309,13 +342,13 @@ class OnboardingViewModel(
                     cigarettesPerDay = state.cigarettesPerDay,
                     pricePerPack = state.pricePerPack,
                     cigarettesPerPack = state.cigarettesPerPack,
-                    photoURL = state.photoUri?.toString() ?: currentUser.photoUrl?.toString(),
+                    photoURL = resolvedPhotoUrl,
                     createdAt = Timestamp.now()
                 )
 
                 val publicProfile = PublicProfile(
                     nickname = state.nickname.trim(),
-                    photoURL = state.photoUri?.toString() ?: currentUser.photoUrl?.toString(),
+                    photoURL = resolvedPhotoUrl,
                     daysSmokeFree = 0,
                     xp = 0,
                     quitDate = quitTimestamp
@@ -324,49 +357,74 @@ class OnboardingViewModel(
                 // Use a write batch for atomicity (best-effort with timeout)
                 // Use toFirestoreMap() for explicit field mapping to avoid
                 // enum-serialization issues with Firestore's POJO converter.
-                try {
-                    val userMap = userProfile.toFirestoreMap()
-                    val publicMap = mapOf<String, Any?>(
-                        "nickname" to publicProfile.nickname,
-                        "photoURL" to publicProfile.photoURL,
-                        "daysSmokeFree" to publicProfile.daysSmokeFree,
-                        "xp" to publicProfile.xp,
-                        "quitDate" to publicProfile.quitDate
-                    )
-                    val batch = firestore.batch()
-                    batch.set(firestore.collection(USERS_COLLECTION).document(userId), userMap)
-                    batch.set(
-                        firestore.collection(PUBLIC_PROFILES_COLLECTION).document(userId),
-                        publicMap
-                    )
-                    val result = withTimeoutOrNull(8_000L) {
-                        batch.commit().await()
-                        true
-                    }
-                    if (result == null) {
-                        Timber.w("$TAG: Firestore write timed out during onboarding — continuing")
-                    } else {
-                        Timber.i("$TAG: Onboarding profile saved for uid=%s", userId)
-                    }
-                } catch (e: CancellationException) {
-                    throw e
-                } catch (e: Exception) {
-                    // Firestore write failed (e.g. rules not deployed yet).
-                    // Don't block the user — they can still use the app.
-                    Timber.w(e, "$TAG: Firestore write failed during onboarding — continuing")
-                }
+                saveProfileToFirestore(userProfile, publicProfile, userId)
+
+                // Cancel safety-net since we completed normally
+                safetyNetJob.cancel()
 
                 // Always mark as complete and navigate to home
                 _uiState.update { it.copy(isLoading = false, isComplete = true) }
             } catch (e: CancellationException) {
                 // Don't treat cancellation as an error, but reset loading state
+                safetyNetJob.cancel()
                 _uiState.update { it.copy(isLoading = false) }
             } catch (e: Exception) {
                 Timber.e(e, "$TAG: Unexpected error during onboarding")
-                // Still navigate to home — don't block the user
+                // Cancel safety-net and still navigate — don't block the user
+                safetyNetJob.cancel()
                 _uiState.update { it.copy(isLoading = false, isComplete = true) }
             }
         }
+    }
+
+    /**
+     * Best-effort Firestore write with its own timeout.
+     * Catches ALL exceptions (including FirebaseFirestoreException with
+     * permission-denied) and never re-throws — the caller always navigates.
+     */
+    private suspend fun saveProfileToFirestore(
+        userProfile: User,
+        publicProfile: PublicProfile,
+        userId: String
+    ) {
+        try {
+            val userMap = userProfile.toFirestoreMap()
+            val publicMap = mapOf<String, Any?>(
+                "nickname" to publicProfile.nickname,
+                "photoURL" to publicProfile.photoURL,
+                "daysSmokeFree" to publicProfile.daysSmokeFree,
+                "xp" to publicProfile.xp,
+                "quitDate" to publicProfile.quitDate
+            )
+            val batch = firestore.batch()
+            batch.set(firestore.collection(USERS_COLLECTION).document(userId), userMap)
+            batch.set(
+                firestore.collection(PUBLIC_PROFILES_COLLECTION).document(userId),
+                publicMap
+            )
+            val result = withTimeoutOrNull(FIRESTORE_WRITE_TIMEOUT_MS) {
+                batch.commit().await()
+                true
+            }
+            if (result == null) {
+                Timber.w("$TAG: Firestore write timed out during onboarding — continuing")
+            } else {
+                Timber.i("$TAG: Onboarding profile saved for uid=%s", userId)
+            }
+        } catch (e: CancellationException) {
+            throw e // Propagate cancellation
+        } catch (e: Exception) {
+            // Firestore write failed (e.g. rules not deployed yet, permission denied).
+            // Don't block the user — they can still use the app.
+            Timber.w(e, "$TAG: Firestore write failed during onboarding — continuing")
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        // Cancel any in-flight save job when the ViewModel is destroyed
+        saveJob?.cancel()
+        Timber.d("$TAG: OnboardingViewModel cleared")
     }
 
     private fun recalculateSavings() {
