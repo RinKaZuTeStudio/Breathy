@@ -1,7 +1,6 @@
 {
   "project_info": {
     "project_number": "956462842979",
-    "firebase_url": "https://breathy-healthy.firebaseio.com",
     "project_id": "breathy-healthy",
     "storage_bucket": "breathy-healthy.firebasestorage.app"
   },
@@ -14,6 +13,14 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "956462842979-gsiagtvp4mn2batg1mjkkm1b7clpqtaa.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.breathy",
+            "certificate_hash": "7b70faeb443341e17b4b064b833b63fe82c84f87"
+          }
+        },
         {
           "client_id": "956462842979-fl850utkk746te3mq3hi4qii36as5ne5.apps.googleusercontent.com",
           "client_type": 3
