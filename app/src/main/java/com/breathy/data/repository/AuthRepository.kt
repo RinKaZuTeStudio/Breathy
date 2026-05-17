@@ -85,7 +85,6 @@ class AuthRepository(
         return try {
             val user = withTimeoutOrNull(NETWORK_TIMEOUT_MS) {
                 val result = auth.signInWithEmailAndPassword(email, password).await()
-                Unit
                 result.user ?: throw IllegalStateException("Sign in failed: user is null")
             } ?: throw IllegalStateException("Sign in timed out after 30 seconds")
             Result.success(user)
@@ -115,40 +114,43 @@ class AuthRepository(
         return try {
             val user = withTimeoutOrNull(NETWORK_TIMEOUT_MS) {
                 val result = auth.createUserWithEmailAndPassword(email, password).await()
-                Unit
                 val firebaseUser = result.user
                     ?: throw IllegalStateException("Sign up failed: user is null")
 
-                // Create initial user document in Firestore
-                val newUser = User(
-                    email = email,
-                    nickname = nickname.ifBlank { firebaseUser.displayName ?: "Quitter" },
-                    createdAt = com.google.firebase.Timestamp.now()
-                )
-                firestore.collection(USERS_COLLECTION)
-                    .document(firebaseUser.uid)
-                    .set(newUser)
-                    .await()
-                    Unit
+                // Create initial user document in Firestore (best-effort)
+                try {
+                    val newUser = User(
+                        email = email,
+                        nickname = nickname.ifBlank { firebaseUser.displayName ?: "Quitter" },
+                        createdAt = com.google.firebase.Timestamp.now()
+                    )
+                    firestore.collection(USERS_COLLECTION)
+                        .document(firebaseUser.uid)
+                        .set(newUser)
+                        .await()
 
-                // Create initial public profile
-                val publicProfile = mapOf(
-                    "nickname" to (nickname.ifBlank { firebaseUser.displayName ?: "Quitter" }),
-                    "photoURL" to (firebaseUser.photoUrl?.toString()),
-                    "daysSmokeFree" to 0,
-                    "xp" to 0,
-                    "quitDate" to newUser.quitDate
-                )
-                firestore.collection(PUBLIC_PROFILES_COLLECTION)
-                    .document(firebaseUser.uid)
-                    .set(publicProfile)
-                    .await()
-                    Unit
+                    // Create initial public profile
+                    val publicProfile = mapOf(
+                        "nickname" to (nickname.ifBlank { firebaseUser.displayName ?: "Quitter" }),
+                        "photoURL" to (firebaseUser.photoUrl?.toString()),
+                        "daysSmokeFree" to 0,
+                        "xp" to 0,
+                        "quitDate" to newUser.quitDate
+                    )
+                    firestore.collection(PUBLIC_PROFILES_COLLECTION)
+                        .document(firebaseUser.uid)
+                        .set(publicProfile)
+                        .await()
+                } catch (e: Exception) {
+                    // Firestore write failed (e.g. rules not deployed yet).
+                    // Auth account was created — don't block sign-up.
+                    // The onboarding screen will create the document later.
+                    Timber.w(e, "Firestore write failed during sign-up for %s — continuing", email)
+                }
 
                 // Send email verification (best-effort, don't block sign-up on failure)
                 try {
                     firebaseUser.sendEmailVerification().await()
-                    Unit
                 } catch (e: Exception) {
                     Timber.w(e, "Failed to send verification email for %s", email)
                 }
@@ -183,36 +185,39 @@ class AuthRepository(
             val user = withTimeoutOrNull(NETWORK_TIMEOUT_MS) {
                 val credential = GoogleAuthProvider.getCredential(idToken, null)
                 val result = auth.signInWithCredential(credential).await()
-                Unit
                 val firebaseUser = result.user
                     ?: throw IllegalStateException("Google sign-in failed: user is null")
 
-                // If this is a new user, create a Firestore document
+                // If this is a new user, create a Firestore document (best-effort)
                 if (result.additionalUserInfo?.isNewUser == true) {
-                    val newUser = User(
-                        email = firebaseUser.email ?: "",
-                        nickname = firebaseUser.displayName ?: "Quitter",
-                        photoURL = firebaseUser.photoUrl?.toString(),
-                        createdAt = com.google.firebase.Timestamp.now()
-                    )
-                    firestore.collection(USERS_COLLECTION)
-                        .document(firebaseUser.uid)
-                        .set(newUser)
-                        .await()
-                        Unit
+                    try {
+                        val newUser = User(
+                            email = firebaseUser.email ?: "",
+                            nickname = firebaseUser.displayName ?: "Quitter",
+                            photoURL = firebaseUser.photoUrl?.toString(),
+                            createdAt = com.google.firebase.Timestamp.now()
+                        )
+                        firestore.collection(USERS_COLLECTION)
+                            .document(firebaseUser.uid)
+                            .set(newUser)
+                            .await()
 
-                    val publicProfile = mapOf(
-                        "nickname" to (firebaseUser.displayName ?: "Quitter"),
-                        "photoURL" to (firebaseUser.photoUrl?.toString()),
-                        "daysSmokeFree" to 0,
-                        "xp" to 0,
-                        "quitDate" to newUser.quitDate
-                    )
-                    firestore.collection(PUBLIC_PROFILES_COLLECTION)
-                        .document(firebaseUser.uid)
-                        .set(publicProfile)
-                        .await()
-                        Unit
+                        val publicProfile = mapOf(
+                            "nickname" to (firebaseUser.displayName ?: "Quitter"),
+                            "photoURL" to (firebaseUser.photoUrl?.toString()),
+                            "daysSmokeFree" to 0,
+                            "xp" to 0,
+                            "quitDate" to newUser.quitDate
+                        )
+                        firestore.collection(PUBLIC_PROFILES_COLLECTION)
+                            .document(firebaseUser.uid)
+                            .set(publicProfile)
+                            .await()
+                    } catch (e: Exception) {
+                        // Firestore write failed (e.g. rules not deployed yet).
+                        // Auth account was created — don't block sign-in.
+                        Timber.w(e, "Firestore write failed during Google sign-in — continuing")
+                    }
                 }
                 firebaseUser
             } ?: throw IllegalStateException("Google sign-in timed out after 30 seconds")

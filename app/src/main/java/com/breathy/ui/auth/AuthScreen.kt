@@ -334,16 +334,19 @@ class AuthViewModel(
                         it.copy(navigationEvent = AuthNavigationEvent.NavigateToHome)
                     }
                 } else {
+                    // New user or missing profile — go to onboarding
                     _uiState.update {
                         it.copy(navigationEvent = AuthNavigationEvent.NavigateToOnboarding)
                     }
                 }
             } catch (e: Exception) {
-                Timber.e(e, "$TAG: Failed to verify user profile for uid=%s", userId)
+                Timber.e(e, "$TAG: Failed to verify user profile for uid=%s — navigating to onboarding as fallback", userId)
+                // Firestore read failed (likely rules not deployed), but auth succeeded.
+                // Navigate to onboarding as a safe fallback instead of blocking the user.
                 _uiState.update {
                     it.copy(
                         isLoading = false,
-                        errorMessage = "Failed to verify profile. Please try again."
+                        navigationEvent = AuthNavigationEvent.NavigateToOnboarding
                     )
                 }
             }
