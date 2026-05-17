@@ -30,7 +30,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -60,7 +59,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import com.breathy.BreathyApplication
 import com.breathy.data.models.PublicProfile
@@ -328,7 +327,7 @@ private fun ProfileHeader(profile: PublicProfile) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(profile.photoURL?.takeIf { it.isNotBlank() })
-                    .crossfade(true)
+                    
                     .build(),
                 contentDescription = "${profile.nickname}'s avatar",
                 modifier = Modifier

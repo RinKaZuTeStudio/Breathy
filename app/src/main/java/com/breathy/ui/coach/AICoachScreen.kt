@@ -102,8 +102,6 @@ import java.util.concurrent.TimeUnit
 //  AICoachScreen — Chat interface with AI coach
 // ═══════════════════════════════════════════════════════════════════════════════
 
-@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
-@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 fun AICoachScreen(
     onBack: () -> Unit = {},

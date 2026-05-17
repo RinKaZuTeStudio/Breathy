@@ -30,8 +30,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Group
-import androidx.compose.material.icons.filled.Inbox
-import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.IncomingMail
+import androidx.compose.material.icons.filled.OutgoingMail
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
@@ -81,7 +81,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.breathy.BreathyApplication
 import com.breathy.data.models.Chat
 import com.breathy.data.models.FriendRequest
@@ -654,7 +654,7 @@ fun FriendsScreen(
 
         // ── Snackbar ───────────────────────────────────────────────────────
         SnackbarHost(
-            hostState = snackbarHostState,
+            snackbarHostState = snackbarHostState,
             modifier = Modifier.align(Alignment.BottomCenter)
         )
     }

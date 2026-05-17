@@ -98,8 +98,6 @@ enum class AchievementFilter(val label: String) {
     LOCKED("Locked")
 }
 
-@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
-@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 fun AchievementsListScreen(
     onBack: () -> Unit = {},

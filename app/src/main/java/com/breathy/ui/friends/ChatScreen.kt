@@ -75,8 +75,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
-import androidx.compose.material3.Card
+import coil3.compose.AsyncImage
 import com.breathy.BreathyApplication
 import com.breathy.data.models.Chat
 import com.breathy.data.models.Message
@@ -166,7 +165,7 @@ class ChatViewModel(
         observeMessages()
     }
 
-    fun loadChat() {
+    private fun loadChat() {
         viewModelScope.launch {
             // Get chat details
             val chatResult = chatRepository.getOrCreateChat(chatId)
@@ -456,7 +455,7 @@ fun ChatScreen(
 
     // Snackbar
     SnackbarHost(
-        hostState = snackbarHostState,
+        snackbarHostState = snackbarHostState,
         modifier = Modifier.padding(bottom = 56.dp)
     )
 }
@@ -599,7 +598,7 @@ private fun MessageList(
     // Auto-scroll to bottom when new messages arrive
     LaunchedEffect(messages.size) {
         if (messages.isNotEmpty()) {
-            val lastIndex = groupedMessages.sumOf<ChatListItem, Int> { item ->
+            val lastIndex = groupedMessages.sumOf { item ->
                 when (item) {
                     is ChatListItem.DateHeader -> 1
                     is ChatListItem.MessageItem -> 1

@@ -105,7 +105,6 @@ class UserRepository(
                 .document(userId)
                 .get(Source.SERVER)
                 .await()
-                Unit
             if (!document.exists()) throw NoSuchElementException("User not found: $userId")
             User.fromFirestoreMap(document.data ?: emptyMap())
         } ?: throw IllegalStateException("Get user timed out after 30 seconds")
@@ -140,9 +139,7 @@ class UserRepository(
         withTimeoutOrNull(NETWORK_TIMEOUT_MS) {
             val ref = storage.reference.child("avatars/$userId/${UUID.randomUUID()}.jpg")
             ref.putFile(photoUri).await()
-            Unit
             val downloadUrl = ref.downloadUrl.await()
-            Unit
             val urlString = downloadUrl.toString()
 
             val batch = firestore.batch()
@@ -155,7 +152,6 @@ class UserRepository(
                 "photoURL", urlString
             )
             batch.commit().await()
-            Unit
             urlString
         } ?: throw IllegalStateException("Photo upload timed out after 30 seconds")
     }.onFailure { e ->
@@ -169,7 +165,6 @@ class UserRepository(
                 .document(userId)
                 .get(Source.SERVER)
                 .await()
-                Unit
             if (!document.exists()) throw NoSuchElementException("Public profile not found: $userId")
             PublicProfile.fromFirestoreMap(document.data ?: emptyMap())
         } ?: throw IllegalStateException("Get public profile timed out after 30 seconds")
@@ -282,7 +277,6 @@ class UserRepository(
                 transaction.update(profileRef, "xp", newXp)
                 newXp
             }.await()
-            Unit
         } ?: throw IllegalStateException("Add XP timed out after 30 seconds")
     }.onFailure { e ->
         if (e !is CancellationException) Timber.e(e, "Failed to add XP for user: %s", userId)
@@ -303,7 +297,6 @@ class UserRepository(
                 transaction.update(userRef, "coins", newCoins)
                 newCoins
             }.await()
-            Unit
         } ?: throw IllegalStateException("Add coins timed out after 30 seconds")
     }.onFailure { e ->
         if (e !is CancellationException) Timber.e(e, "Failed to add coins for user: %s", userId)
@@ -331,7 +324,6 @@ class UserRepository(
                 transaction.update(profileRef, "xp", newXp)
                 Pair(newXp, newCoins)
             }.await()
-            Unit
         } ?: throw IllegalStateException("Update XP/coins timed out after 30 seconds")
     }.onFailure { e ->
         if (e !is CancellationException) Timber.e(e, "Failed to update XP/coins for user: %s", userId)
@@ -377,7 +369,6 @@ class UserRepository(
 
                 reward
             }.await()
-            Unit
         } ?: throw IllegalStateException("Claim daily reward timed out after 30 seconds")
     }.onFailure { e ->
         if (e !is CancellationException) Timber.e(e, "Failed to claim daily reward for user: %s", userId)
@@ -559,7 +550,6 @@ class UserRepository(
                     .limit(limit.toLong())
                     .get()
                     .await()
-                    Unit
                 snapshot.documents.mapNotNull { doc ->
                     doc.data?.let { PublicProfile.fromFirestoreMap(it) }
                 }

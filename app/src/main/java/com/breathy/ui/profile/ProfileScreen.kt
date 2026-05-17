@@ -84,7 +84,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.breathy.BreathyApplication
 import com.breathy.data.models.Achievement
 import com.breathy.data.models.Subscription
@@ -110,8 +110,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.delay
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Calendar

@@ -26,8 +26,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -64,7 +68,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.FontFamily
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -75,7 +79,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.breathy.BreathyApplication
 import com.breathy.data.models.PublicProfile
 import com.breathy.data.repository.EventRepository
@@ -262,7 +266,7 @@ class LeaderboardViewModelFactory(
 //  LeaderboardScreen — Global XP leaderboard
 // ═══════════════════════════════════════════════════════════════════════════════
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun LeaderboardScreen(
     onNavigateBack: () -> Unit = {},
@@ -298,6 +302,18 @@ fun LeaderboardScreen(
         onDispose { Timber.d("LeaderboardScreen: disposed") }
     }
 
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = isRefreshing,
+        onRefresh = {
+            isRefreshing = true
+            viewModel.refresh()
+            scope.launch {
+                delay(1000)
+                isRefreshing = false
+            }
+        }
+    )
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -329,7 +345,7 @@ fun LeaderboardScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                
+                .pullRefresh(pullRefreshState)
         ) {
             when {
                 uiState.isLoading && uiState.entries.isEmpty() -> {
@@ -441,6 +457,14 @@ fun LeaderboardScreen(
                     }
                 }
             }
+
+            PullRefreshIndicator(
+                refreshing = isRefreshing,
+                state = pullRefreshState,
+                modifier = Modifier.align(Alignment.TopCenter),
+                contentColor = AccentPrimary,
+                backgroundColor = BgSurface
+            )
         }
     }
 }

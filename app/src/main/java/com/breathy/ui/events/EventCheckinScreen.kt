@@ -84,7 +84,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.FontFamily
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -488,7 +488,7 @@ fun EventCheckinScreen(
                             previewView = pv
                             cameraProvider?.let { provider ->
                                 val preview = Preview.Builder().build()
-                                preview.setSurfaceProvider(pv.surfaceProvider)
+                                preview.surfaceProvider = pv.surfaceProvider
                                 try {
                                     provider.unbindAll()
                                     val capture = videoCapture

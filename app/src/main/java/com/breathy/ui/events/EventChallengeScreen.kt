@@ -76,7 +76,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.FontFamily
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -87,7 +87,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
-import coil.compose.AsyncImage
+import coil3.compose.AsyncImage
 import com.breathy.BreathyApplication
 import com.breathy.data.models.Event
 import com.breathy.data.models.EventParticipant
@@ -235,7 +235,7 @@ class EventChallengeViewModel(
                         it.copy(
                             isJoined = true,
                             participant = participant,
-                            canCheckinToday = _uiState.value.event?.isCurrentlyActive() == true
+                            canCheckinToday = event?.isCurrentlyActive() == true
                         )
                     }
                 },

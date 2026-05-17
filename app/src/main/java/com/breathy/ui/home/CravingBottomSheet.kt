@@ -38,7 +38,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import kotlinx.coroutines.delay
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -79,8 +78,6 @@ import kotlin.random.Random
  * @param onLogCraving         Callback to log a craving with method and success.
  * @param onDismiss            Callback when the sheet is dismissed.
  */
-@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
-@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 fun CravingBottomSheet(
     lastCravingTimeAgo: String?,
@@ -421,7 +418,6 @@ private fun CopingMethodCard(
  * Simple Canvas-based confetti animation.
  * Renders colorful particles that fall and rotate, simulating celebration.
  */
-@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 fun KonfettiOverlay(
     modifier: Modifier = Modifier
