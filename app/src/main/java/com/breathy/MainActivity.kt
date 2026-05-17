@@ -6,10 +6,10 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -18,6 +18,11 @@ import com.breathy.di.AppModule
 import com.breathy.ui.navigation.BreathyNavHost
 import com.breathy.ui.theme.BreathyTheme
 import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.api.ApiException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -28,6 +33,7 @@ import timber.log.Timber
  *
  * Responsibilities:
  * - Initializes AdMob SDK off the main thread
+ * - Handles Google Sign-In via [GoogleSignInClient]
  * - Requests POST_NOTIFICATIONS permission on Android 13+
  * - Handles deep links from push notifications and URI-based intents
  * - Provides the Compose navigation host wrapped in [BreathyTheme]
@@ -36,9 +42,21 @@ class MainActivity : ComponentActivity() {
 
     private var deepLinkRoute by mutableStateOf<String?>(null)
 
+    /** Google Sign-In ID token, shared with Compose navigation via state. */
+    private var googleIdToken by mutableStateOf<String?>(null)
+
     /** Lazy reference to the app-scoped [AppModule] for manual DI. */
     private val appModule: AppModule by lazy {
         (application as BreathyApplication).appModule
+    }
+
+    /** Google Sign-In client configured with the default web client ID from Firebase. */
+    private val googleSignInClient: GoogleSignInClient by lazy {
+        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.default_web_client_id))
+            .requestEmail()
+            .build()
+        GoogleSignIn.getClient(this, gso)
     }
 
     private val notificationPermissionLauncher = registerForActivityResult(
@@ -49,6 +67,13 @@ class MainActivity : ComponentActivity() {
         } else {
             Timber.w("Notification permission denied")
         }
+    }
+
+    /** Launcher for Google Sign-In intent. */
+    private val googleSignInLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result: ActivityResult ->
+        handleGoogleSignInResult(result)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,15 +98,16 @@ class MainActivity : ComponentActivity() {
         handleDeepLinkFromIntent(intent)
 
         setContent {
-            // Breathy uses a dark-only theme; BreathyTheme always applies
-            // the dark color scheme internally.
             BreathyTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     BreathyNavHost(
                         deepLinkRoute = deepLinkRoute,
-                        onDeepLinkConsumed = { deepLinkRoute = null }
+                        onDeepLinkConsumed = { deepLinkRoute = null },
+                        onGoogleSignInRequest = { launchGoogleSignIn() },
+                        googleIdToken = googleIdToken,
+                        onGoogleTokenConsumed = { googleIdToken = null }
                     )
                 }
             }
@@ -91,6 +117,39 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         handleDeepLinkFromIntent(intent)
+    }
+
+    // ── Google Sign-In ─────────────────────────────────────────────────────
+
+    /** Launch the Google Sign-In intent. */
+    private fun launchGoogleSignIn() {
+        try {
+            // Sign out first to show account picker every time
+            googleSignInClient.signOut()
+            val signInIntent = googleSignInClient.signInIntent
+            googleSignInLauncher.launch(signInIntent)
+        } catch (e: Exception) {
+            Timber.e(e, "Failed to launch Google Sign-In")
+        }
+    }
+
+    /** Handle the result from Google Sign-In. */
+    private fun handleGoogleSignInResult(result: ActivityResult) {
+        try {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+            val account: GoogleSignInAccount = task.getResult(ApiException::class.java)
+            val idToken = account.idToken
+            if (idToken != null) {
+                Timber.d("Google Sign-In successful, got idToken")
+                googleIdToken = idToken
+            } else {
+                Timber.e("Google Sign-In returned null idToken")
+            }
+        } catch (e: ApiException) {
+            Timber.e(e, "Google Sign-In failed with status code: ${e.statusCode}")
+        } catch (e: Exception) {
+            Timber.e(e, "Google Sign-In failed unexpectedly")
+        }
     }
 
     // ── Deep Link Handling ──────────────────────────────────────────────────

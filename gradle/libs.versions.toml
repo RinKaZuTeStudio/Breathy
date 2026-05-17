@@ -45,6 +45,9 @@ billing = "6.0.1"
 # Ads
 admob = "23.0.0"
 
+# Google Sign-In
+playServicesAuth = "21.2.0"
+
 # Misc
 material3 = "1.12.0"
 serialization = "1.6.3"
@@ -121,6 +124,9 @@ billing-ktx = { group = "com.android.billingclient", name = "billing-ktx", versi
 
 # AdMob
 admob = { group = "com.google.android.gms", name = "play-services-ads", version.ref = "admob" }
+
+# Google Sign-In
+play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
 
 # Material Design (XML)
 android-material = { group = "com.google.android.material", name = "material", version.ref = "material3" }

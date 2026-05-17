@@ -441,6 +441,8 @@ fun AuthScreen(
     onNavigateToHome: () -> Unit,
     onNavigateToOnboarding: () -> Unit,
     onGoogleSignInRequest: () -> Unit = {},
+    googleIdToken: String? = null,
+    onGoogleTokenConsumed: () -> Unit = {},
     viewModel: AuthViewModel = run {
         val context = LocalContext.current
         val appModule = (context.applicationContext as BreathyApplication).appModule
@@ -452,6 +454,14 @@ fun AuthScreen(
     val scope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
+
+    // ── Handle Google Sign-In token from Activity ────────────────────────────
+    LaunchedEffect(googleIdToken) {
+        if (googleIdToken != null) {
+            viewModel.signInWithGoogle(googleIdToken)
+            onGoogleTokenConsumed()
+        }
+    }
 
     // ── Navigation events ────────────────────────────────────────────────────
     LaunchedEffect(uiState.navigationEvent) {

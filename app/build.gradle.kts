@@ -144,6 +144,9 @@ dependencies {
     // ── AdMob ──────────────────────────────────────────────────────────────
     implementation(libs.admob)
 
+    // ── Google Sign-In ──────────────────────────────────────────────────────
+    implementation(libs.play.services.auth)
+
     // ── CameraX ────────────────────────────────────────────────────────────
     implementation(libs.camera.core)
     implementation(libs.camera.camera2)
