@@ -94,8 +94,8 @@ import com.breathy.ui.theme.TextSecondary
 import com.google.firebase.Timestamp
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.MutableSharedFlow
-import kotlinx.coroutines.SharedFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -602,7 +602,8 @@ private fun MessageList(
                 when (item) {
                     is ChatListItem.DateHeader -> 1
                     is ChatListItem.MessageItem -> 1
-                }
+                                else -> 0
+}
             } - 1
             if (lastIndex >= 0) {
                 listState.animateScrollToItem(lastIndex)

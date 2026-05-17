@@ -1,3 +1,5 @@
+@file:OptIn(androidx.compose.material.ExperimentalMaterialApi::class)
+
 package com.breathy.ui.home
 
 import androidx.compose.animation.AnimatedVisibility

@@ -842,10 +842,10 @@ class SubscriptionViewModel(
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 productDetails = productDetailsList.firstOrNull()
                 productDetails?.let { details ->
-                    val offerToken = details.oneTimePurchaseOfferDetails?.offerToken
-                    val priceAmount = details.oneTimePurchaseOfferDetails?.priceAmountMicros ?: 0
-                    val priceCurrency = details.oneTimePurchaseOfferDetails?.priceCurrencyCode ?: "USD"
-                    val formattedPrice = details.oneTimePurchaseOfferDetails?.formattedPrice ?: "$1.00"
+                    val offerToken = try { details.oneTimePurchaseOfferDetails?.offerToken ?: "" } catch (_: Exception) { "" }
+                    val priceAmount = try { details.oneTimePurchaseOfferDetails?.priceAmountMicros ?: 0 } catch (_: Exception) { 0 }
+                    val priceCurrency = try { details.oneTimePurchaseOfferDetails?.priceCurrencyCode ?: "USD" } catch (_: Exception) { "USD" }
+                    val formattedPrice = try { details.oneTimePurchaseOfferDetails?.formattedPrice ?: "$1.00" } catch (_: Exception) { "$1.00" }
 
                     _uiState.update { it.copy(priceText = formattedPrice) }
                     Timber.i("Product details loaded: $formattedPrice $priceCurrency")
@@ -867,7 +867,7 @@ class SubscriptionViewModel(
             return
         }
 
-        val offerToken = details.oneTimePurchaseOfferDetails?.offerToken ?: run {
+        val offerToken = try { details.oneTimePurchaseOfferDetails?.offerToken } catch (_: Exception) { null } ?: run {
             _uiState.update {
                 it.copy(errorMessage = "Product pricing not available.")
             }

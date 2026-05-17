@@ -30,8 +30,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Group
-import androidx.compose.material.icons.filled.IncomingMail
-import androidx.compose.material.icons.filled.OutgoingMail
+import androidx.compose.material.icons.filled.Inbox
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
@@ -1013,7 +1013,7 @@ private fun RequestsTab(
                     modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.IncomingMail,
+                        imageVector = Icons.Default.Inbox,
                         contentDescription = null,
                         tint = AccentPrimary,
                         modifier = Modifier.size(18.dp)
@@ -1050,7 +1050,7 @@ private fun RequestsTab(
                     modifier = Modifier.padding(bottom = 4.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.OutgoingMail,
+                        imageVector = Icons.Default.Send,
                         contentDescription = null,
                         tint = TextSecondary,
                         modifier = Modifier.size(18.dp)
@@ -1208,7 +1208,7 @@ private fun OutgoingRequestItem(
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
-                        imageVector = Icons.Default.OutgoingMail,
+                        imageVector = Icons.Default.Send,
                         contentDescription = null,
                         tint = TextSecondary,
                         modifier = Modifier.size(22.dp)
@@ -1317,7 +1317,7 @@ private fun EmptyRequestsState() {
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
-                        imageVector = Icons.Default.IncomingMail,
+                        imageVector = Icons.Default.Inbox,
                         contentDescription = null,
                         tint = TextSecondary.copy(alpha = 0.5f),
                         modifier = Modifier.size(36.dp)

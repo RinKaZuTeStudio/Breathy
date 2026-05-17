@@ -140,7 +140,6 @@ class CoachRepository(
                 functions.getHttpsCallable(CLOUD_FUNCTION_NAME)
                     .call(functionData)
                     .await()
-                    Unit
             } catch (e: Exception) {
                 Timber.e(e, "Cloud Function call failed for user: %s", uid)
                 // If the function fails, return a fallback response
