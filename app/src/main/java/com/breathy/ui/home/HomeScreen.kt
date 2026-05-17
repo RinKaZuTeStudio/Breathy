@@ -1,7 +1,7 @@
+@file:OptIn(androidx.compose.material.ExperimentalMaterialApi::class)
 
 package com.breathy.ui.home
 
-@file:OptIn(androidx.compose.material.ExperimentalMaterialApi::class)
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.RepeatMode
@@ -89,6 +89,7 @@ import com.breathy.ui.theme.TextSecondary
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import androidx.compose.material3.Icon
 
 // ═══════════════════════════════════════════════════════════════════════════════
 //  HomeScreen — Main dashboard composable

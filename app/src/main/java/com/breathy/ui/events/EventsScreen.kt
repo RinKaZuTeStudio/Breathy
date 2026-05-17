@@ -1,7 +1,7 @@
+@file:OptIn(androidx.compose.material.ExperimentalMaterialApi::class)
 
 package com.breathy.ui.events
 
-@file:OptIn(androidx.compose.material.ExperimentalMaterialApi::class)
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween

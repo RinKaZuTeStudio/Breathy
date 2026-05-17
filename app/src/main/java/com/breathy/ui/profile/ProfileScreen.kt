@@ -115,6 +115,7 @@ import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import kotlinx.coroutines.delay
 
 // ═══════════════════════════════════════════════════════════════════════════════
 //  ProfileScreen — User's own profile page

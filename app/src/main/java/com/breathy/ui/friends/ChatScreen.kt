@@ -110,6 +110,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.concurrent.TimeUnit
+import androidx.compose.material3.Card
 
 // ═══════════════════════════════════════════════════════════════════════════════
 //  UI State
@@ -165,7 +166,7 @@ class ChatViewModel(
         observeMessages()
     }
 
-    private fun loadChat() {
+    internal fun loadChat() {
         viewModelScope.launch {
             // Get chat details
             val chatResult = chatRepository.getOrCreateChat(chatId)
@@ -455,7 +456,7 @@ fun ChatScreen(
 
     // Snackbar
     SnackbarHost(
-        snackbarHostState = snackbarHostState,
+        hostState = snackbarHostState,
         modifier = Modifier.padding(bottom = 56.dp)
     )
 }
@@ -598,12 +599,11 @@ private fun MessageList(
     // Auto-scroll to bottom when new messages arrive
     LaunchedEffect(messages.size) {
         if (messages.isNotEmpty()) {
-            val lastIndex = groupedMessages.sumOf { item ->
+            val lastIndex = groupedMessages.sumOf<Int> { item ->
                 when (item) {
                     is ChatListItem.DateHeader -> 1
                     is ChatListItem.MessageItem -> 1
-                                else -> 0
-}
+                }
             } - 1
             if (lastIndex >= 0) {
                 listState.animateScrollToItem(lastIndex)

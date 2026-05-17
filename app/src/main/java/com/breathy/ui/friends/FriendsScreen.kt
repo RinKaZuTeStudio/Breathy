@@ -654,7 +654,7 @@ fun FriendsScreen(
 
         // ── Snackbar ───────────────────────────────────────────────────────
         SnackbarHost(
-            snackbarHostState = snackbarHostState,
+            hostState = snackbarHostState,
             modifier = Modifier.align(Alignment.BottomCenter)
         )
     }

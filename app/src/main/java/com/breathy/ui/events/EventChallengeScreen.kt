@@ -113,6 +113,7 @@ import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.concurrent.TimeUnit
+import androidx.compose.ui.text.font.FontFamily
 
 // ═══════════════════════════════════════════════════════════════════════════════
 //  UI State
@@ -235,7 +236,7 @@ class EventChallengeViewModel(
                         it.copy(
                             isJoined = true,
                             participant = participant,
-                            canCheckinToday = event?.isCurrentlyActive() == true
+                            canCheckinToday = _uiState.value.event?.isCurrentlyActive() == true
                         )
                     }
                 },

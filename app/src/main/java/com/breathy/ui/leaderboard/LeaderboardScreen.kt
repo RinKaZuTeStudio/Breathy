@@ -1,7 +1,6 @@
+@file:OptIn(androidx.compose.material.ExperimentalMaterialApi::class)
 
 package com.breathy.ui.leaderboard
-
-@file:OptIn(androidx.compose.material.ExperimentalMaterialApi::class)
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.RepeatMode
@@ -111,6 +110,7 @@ import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.compose.ui.text.font.FontFamily
 
 // ═══════════════════════════════════════════════════════════════════════════════
 //  UI State

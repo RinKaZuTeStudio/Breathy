@@ -87,6 +87,7 @@ import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.compose.material3.IconButton
 
 // ═══════════════════════════════════════════════════════════════════════════════
 //  PublicProfileScreen — View another user's public profile

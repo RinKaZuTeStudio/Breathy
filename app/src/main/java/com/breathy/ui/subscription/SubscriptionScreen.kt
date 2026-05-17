@@ -1,3 +1,5 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+
 package com.breathy.ui.subscription
 
 import android.app.Activity
@@ -104,6 +106,8 @@ import timber.log.Timber
 import java.text.NumberFormat
 import java.util.Currency
 import java.util.Locale
+import kotlinx.coroutines.delay
+import androidx.compose.foundation.background
 
 // ═══════════════════════════════════════════════════════════════════════════════
 //  SubscriptionScreen — "Support me" one-time purchase + Play Billing
@@ -843,7 +847,7 @@ class SubscriptionViewModel(
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 productDetails = productDetailsList.firstOrNull()
                 productDetails?.let { details ->
-                    val offerToken = try { details.oneTimePurchaseOfferDetails?.offerToken ?: "" } catch (_: Exception) { "" }
+                    val offerToken = try { details.oneTimePurchaseOfferDetails?.let { ot -> ot.offerToken } ?: "" } catch (_: Exception) { "" }
                     val priceAmount = try { details.oneTimePurchaseOfferDetails?.priceAmountMicros ?: 0 } catch (_: Exception) { 0 }
                     val priceCurrency = try { details.oneTimePurchaseOfferDetails?.priceCurrencyCode ?: "USD" } catch (_: Exception) { "USD" }
                     val formattedPrice = try { details.oneTimePurchaseOfferDetails?.formattedPrice ?: "$1.00" } catch (_: Exception) { "$1.00" }
@@ -868,7 +872,7 @@ class SubscriptionViewModel(
             return
         }
 
-        val offerToken = try { details.oneTimePurchaseOfferDetails?.offerToken } catch (_: Exception) { null } ?: run {
+        val offerToken = try { details.oneTimePurchaseOfferDetails?.let { ot -> ot.offerToken } } catch (_: Exception) { null } ?: run {
             _uiState.update {
                 it.copy(errorMessage = "Product pricing not available.")
             }

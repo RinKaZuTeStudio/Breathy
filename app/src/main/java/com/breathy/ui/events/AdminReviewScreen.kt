@@ -1,7 +1,7 @@
+@file:OptIn(androidx.compose.material.ExperimentalMaterialApi::class)
 
 package com.breathy.ui.events
 
-@file:OptIn(androidx.compose.material.ExperimentalMaterialApi::class)
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -112,6 +112,8 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.text.SimpleDateFormat
 import java.util.Locale
+import kotlinx.coroutines.tasks.await
+import androidx.compose.ui.graphics.Color
 
 // ═══════════════════════════════════════════════════════════════════════════════
 //  UI State

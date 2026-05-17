@@ -1,3 +1,5 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+
 package com.breathy.ui.home
 
 import androidx.compose.animation.AnimatedVisibility
@@ -63,6 +65,7 @@ import com.breathy.ui.theme.TextSecondary
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
+import kotlinx.coroutines.delay
 
 // ═══════════════════════════════════════════════════════════════════════════════
 //  CravingBottomSheet — Craving coping bottom sheet with 3 methods

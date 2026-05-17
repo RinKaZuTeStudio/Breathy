@@ -121,6 +121,7 @@ import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.concurrent.TimeUnit
+import androidx.compose.ui.text.font.FontFamily
 
 // ═══════════════════════════════════════════════════════════════════════════════
 //  UI State
@@ -488,7 +489,7 @@ fun EventCheckinScreen(
                             previewView = pv
                             cameraProvider?.let { provider ->
                                 val preview = Preview.Builder().build()
-                                preview.surfaceProvider = pv.surfaceProvider
+                                preview.setSurfaceProvider(pv.surfaceProvider)
                                 try {
                                     provider.unbindAll()
                                     val capture = videoCapture
