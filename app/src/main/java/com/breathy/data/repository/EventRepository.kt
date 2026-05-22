@@ -426,6 +426,65 @@ class EventRepository(
         awaitClose { registration.remove() }
     }
 
+    // ═══════════════════════════════════════════════════════════════════════════
+    //  Seed Push-up Challenge Event
+    // ═══════════════════════════════════════════════════════════════════════════
+
+    /**
+     * Seed the Push-up Challenge event into Firestore if it doesn't already exist.
+     * Prizes: 1st-3rd: $50, 4th-5th: $30, 6th-10th: $15
+     */
+    suspend fun seedPushupChallenge(): Result<Unit> = runCatching {
+        val eventId = "pushup_challenge_2025"
+        val docRef = firestore.collection(EVENTS_COLLECTION).document(eventId)
+
+        withTimeoutOrNull(NETWORK_TIMEOUT_MS) {
+            val existing = try {
+                docRef.get(Source.SERVER).await()
+            } catch (e: Exception) {
+                Timber.w(e, "Server fetch failed for push-up event — trying cache")
+                docRef.get(Source.CACHE).await()
+            }
+
+            if (existing.exists()) {
+                Timber.i("Push-up challenge event already exists — skipping seed")
+                return@withTimeoutOrNull
+            }
+
+            // Create the event document
+            val now = System.currentTimeMillis()
+            val startDate = com.google.firebase.Timestamp(now / 1000, 0)
+            // Event runs for 30 days
+            val endDate = com.google.firebase.Timestamp((now + 30L * 24 * 60 * 60 * 1000) / 1000, 0)
+
+            val eventData = mapOf(
+                "title" to "Push-up Challenge",
+                "description" to "Complete daily push-ups and compete for cash prizes! Record yourself doing push-ups every day, submit video check-ins, and climb the leaderboard. Top performers win real cash rewards!",
+                "startDate" to startDate,
+                "endDate" to endDate,
+                "active" to true,
+                "prizes" to mapOf(
+                    "1st" to "$50",
+                    "2nd" to "$50",
+                    "3rd" to "$50",
+                    "4th" to "$30",
+                    "5th" to "$30",
+                    "6th" to "$15",
+                    "7th" to "$15",
+                    "8th" to "$15",
+                    "9th" to "$15",
+                    "10th" to "$15"
+                ),
+                "dailyRequired" to 1
+            )
+
+            docRef.set(eventData).await()
+            Timber.i("Push-up challenge event seeded successfully")
+        } ?: throw IllegalStateException("Seed push-up challenge timed out after 30 seconds")
+    }.onFailure { e ->
+        if (e !is CancellationException) Timber.e(e, "Failed to seed push-up challenge")
+    }
+
     /** Observe a single event in real-time. */
     @OptIn(ExperimentalCoroutinesApi::class)
     fun observeEvent(eventId: String): Flow<Event> = callbackFlow {

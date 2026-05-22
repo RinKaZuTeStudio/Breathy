@@ -14,6 +14,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -77,6 +78,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.breathy.ui.components.NetworkImage
 import com.breathy.BreathyApplication
 import com.breathy.data.models.CopingMethod
+import com.breathy.data.models.Event
 import com.breathy.ui.theme.AccentOrange
 import com.breathy.ui.theme.AccentPrimary
 import com.breathy.ui.theme.AccentPurple
@@ -96,13 +98,16 @@ fun HomeScreen(
     onNavigateToNotifications: () -> Unit = {},
     onNavigateToProfile: () -> Unit = {},
     onNavigateToAICoach: () -> Unit = {},
+    onNavigateToEventDetail: (String) -> Unit = {},
+    onNavigateToEvents: () -> Unit = {},
     viewModel: HomeViewModel = run {
         val context = LocalContext.current
         val app = context.applicationContext as BreathyApplication
         viewModel(factory = HomeViewModelFactory(
             userRepository = app.appModule.userRepository,
             rewardRepository = app.appModule.rewardRepository,
-            auth = app.appModule.firebaseAuth
+            auth = app.appModule.firebaseAuth,
+            eventRepository = app.appModule.eventRepository
         ))
     }
 ) {
@@ -326,6 +331,16 @@ fun HomeScreen(
                         CravingStreakCard(
                             successfulCount = uiState.successfulCravings,
                             lastCravingTimeAgo = uiState.lastCravingTimeAgo
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+
+                    // ── Active Events Banner ──────────────────────────────
+                    if (uiState.activeEvents.isNotEmpty()) {
+                        ActiveEventsBanner(
+                            events = uiState.activeEvents,
+                            onEventClick = onNavigateToEventDetail,
+                            onViewAllClick = onNavigateToEvents
                         )
                         Spacer(modifier = Modifier.height(16.dp))
                     }
@@ -995,6 +1010,140 @@ private fun ConfettiMessage(
                     fontWeight = FontWeight.Bold
                 )
             )
+        }
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  Active Events Banner — Shows active challenges on the home screen
+// ═══════════════════════════════════════════════════════════════════════════════
+
+@Composable
+private fun ActiveEventsBanner(
+    events: List<Event>,
+    onEventClick: (String) -> Unit,
+    onViewAllClick: () -> Unit
+) {
+    Column {
+        // Section header
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "🏆 Active Challenges",
+                style = MaterialTheme.typography.titleMedium.copy(
+                    color = MaterialTheme.colorScheme.onBackground,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+            Text(
+                text = "View All",
+                style = MaterialTheme.typography.labelMedium.copy(
+                    color = AccentPrimary,
+                    fontWeight = FontWeight.SemiBold
+                ),
+                modifier = Modifier.clickable { onViewAllClick() }
+            )
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Show up to 2 event cards
+        events.take(2).forEach { event ->
+            HomeEventCard(
+                event = event,
+                onClick = { onEventClick(event.id) }
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+    }
+}
+
+@Composable
+private fun HomeEventCard(
+    event: Event,
+    onClick: () -> Unit
+) {
+    val infiniteTransition = rememberInfiniteTransition(label = "event_glow")
+    val glowAlpha by infiniteTransition.animateFloat(
+        initialValue = 0.05f,
+        targetValue = 0.15f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(2000),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "event_glow_alpha"
+    )
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = AccentPrimary.copy(alpha = glowAlpha)
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        shape = RoundedCornerShape(16.dp),
+        onClick = onClick
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = event.title,
+                    style = MaterialTheme.typography.titleSmall.copy(
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontWeight = FontWeight.Bold
+                    ),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = event.description,
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontSize = 12.sp
+                    ),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                if (event.prizes.isNotEmpty()) {
+                    Spacer(modifier = Modifier.height(6.dp))
+                    val firstPrize = event.prizes["1st"] ?: event.prizes.entries.firstOrNull()?.value
+                    if (firstPrize != null) {
+                        Text(
+                            text = "🥇 1st Prize: $firstPrize",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                color = AccentPrimary,
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 12.sp
+                            )
+                        )
+                    }
+                }
+            }
+
+            // Arrow icon
+            Card(
+                colors = CardDefaults.cardColors(containerColor = AccentPrimary.copy(alpha = 0.15f)),
+                shape = RoundedCornerShape(12.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            ) {
+                Text(
+                    text = "→",
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = AccentPrimary,
+                        fontWeight = FontWeight.Bold
+                    )
+                )
+            }
         }
     }
 }

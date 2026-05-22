@@ -739,7 +739,8 @@ data class SubscriptionUiState(
         SupporterBenefit("⭐", "Supporter Badge", "Show your support on your profile"),
         SupporterBenefit("🤖", "Priority AI Coach", "Faster responses from your AI companion"),
         SupporterBenefit("💚", "Support the Mission", "Help others quit smoking worldwide")
-    )
+    ),
+    val billingReady: Boolean = false
 )
 
 class SubscriptionViewModel(
@@ -821,6 +822,7 @@ class SubscriptionViewModel(
             override fun onBillingSetupFinished(billingResult: BillingResult) {
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                     Timber.i("BillingClient ready")
+                    _uiState.update { it.copy(billingReady = true) }
                     queryProductDetails()
                 } else {
                     Timber.e("BillingClient setup failed: ${billingResult.debugMessage}")
@@ -868,10 +870,25 @@ class SubscriptionViewModel(
     fun launchBillingFlow(activity: Activity) {
         ensureBillingClient(activity)
 
+        // Small delay to allow billing client to connect if just initialized
         val details = productDetails
         if (details == null) {
-            _uiState.update {
-                it.copy(errorMessage = "Product not available. Please try again later.")
+            // Product not available via BillingClient — redirect to Google Play Store
+            Timber.w("Product not available in BillingClient — redirecting to Play Store")
+            try {
+                val intent = android.content.Intent(
+                    android.content.Intent.ACTION_VIEW,
+                    android.net.Uri.parse("https://play.google.com/store/apps/details?id=com.breathy")
+                )
+                activity.startActivity(intent)
+                _uiState.update {
+                    it.copy(errorMessage = "Redirected to Play Store. Complete your purchase there.")
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "Failed to redirect to Play Store")
+                _uiState.update {
+                    it.copy(errorMessage = "Unable to connect to Play Store. Please try again later.")
+                }
             }
             return
         }

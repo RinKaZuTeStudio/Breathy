@@ -181,9 +181,6 @@ private val popExitTransition: AnimatedContentTransitionScope<*>.() -> ExitTrans
 fun BreathyNavHost(
     deepLinkRoute: String?,
     onDeepLinkConsumed: () -> Unit,
-    onGoogleSignInRequest: () -> Unit = {},
-    googleIdToken: String? = null,
-    onGoogleTokenConsumed: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val navController = rememberNavController()
@@ -293,10 +290,7 @@ fun BreathyNavHost(
                             launchSingleTop = true
                         }
                     },
-                    onNavigateToOnboarding = { navigateTo(BreathyRoutes.ONBOARDING) },
-                    onGoogleSignInRequest = onGoogleSignInRequest,
-                    googleIdToken = googleIdToken,
-                    onGoogleTokenConsumed = onGoogleTokenConsumed
+                    onNavigateToOnboarding = { navigateTo(BreathyRoutes.ONBOARDING) }
                 )
             }
 
@@ -319,7 +313,11 @@ fun BreathyNavHost(
                 HomeScreen(
                     onNavigateToProfile = { navigateToWithAd(BreathyRoutes.PROFILE) },
                     onNavigateToAICoach = { navigateToWithAd(BreathyRoutes.AI_COACH) },
-                    onNavigateToNotifications = { navigateToWithAd(BreathyRoutes.NOTIFICATIONS) }
+                    onNavigateToNotifications = { navigateToWithAd(BreathyRoutes.NOTIFICATIONS) },
+                    onNavigateToEventDetail = { eventId ->
+                        navigateToWithAd(BreathyRoutes.eventChallenge(eventId))
+                    },
+                    onNavigateToEvents = { navigateToWithAd(BreathyRoutes.EVENTS) }
                 )
             }
 

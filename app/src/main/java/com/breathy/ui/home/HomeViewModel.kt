@@ -7,6 +7,8 @@ import com.breathy.data.models.Achievement
 import com.breathy.data.models.CopingMethod
 import com.breathy.data.models.HealthMilestone
 import com.breathy.data.models.User
+import com.breathy.data.models.Event
+import com.breathy.data.repository.EventRepository
 import com.breathy.data.repository.RewardRepository
 import com.breathy.data.repository.UserRepository
 import com.google.firebase.auth.FirebaseAuth
@@ -57,7 +59,9 @@ data class HomeUiState(
     /** Seconds until next daily reward is available (0 = available now). */
     val dailyRewardCountdownSeconds: Long = 0L,
     /** Total successful craving resistances. */
-    val successfulCravings: Int = 0
+    val successfulCravings: Int = 0,
+    /** Active events for the home screen banner. */
+    val activeEvents: List<Event> = emptyList()
 )
 
 sealed class HomeSingleEvent {
@@ -74,7 +78,8 @@ sealed class HomeSingleEvent {
 class HomeViewModel(
     private val userRepository: UserRepository,
     private val rewardRepository: RewardRepository,
-    private val auth: FirebaseAuth
+    private val auth: FirebaseAuth,
+    private val eventRepository: EventRepository
 ) : ViewModel() {
 
     companion object {
@@ -143,6 +148,7 @@ class HomeViewModel(
         }
 
         loadLastCravingTime(uid)
+        loadActiveEvents()
     }
 
     /**
@@ -218,6 +224,30 @@ class HomeViewModel(
             checkAchievements()
         } catch (e: Exception) {
             Timber.w(e, "$TAG: Achievement check failed — non-critical")
+        }
+    }
+
+    private fun loadActiveEvents() {
+        viewModelScope.launch {
+            try {
+                // Also seed the push-up challenge if it doesn't exist yet
+                eventRepository.seedPushupChallenge()
+
+                eventRepository.getActiveEvents().fold(
+                    onSuccess = { events ->
+                        _uiState.update { it.copy(activeEvents = events) }
+                    },
+                    onFailure = { e ->
+                        if (e !is CancellationException) {
+                            Timber.e(e, "$TAG: Failed to load active events")
+                        }
+                    }
+                )
+            } catch (e: CancellationException) {
+                // Ignore
+            } catch (e: Exception) {
+                Timber.e(e, "$TAG: Failed to load active events")
+            }
         }
     }
 
@@ -375,13 +405,14 @@ class HomeViewModel(
 class HomeViewModelFactory(
     private val userRepository: UserRepository,
     private val rewardRepository: RewardRepository,
-    private val auth: FirebaseAuth
+    private val auth: FirebaseAuth,
+    private val eventRepository: EventRepository
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
-            return HomeViewModel(userRepository, rewardRepository, auth) as T
+            return HomeViewModel(userRepository, rewardRepository, auth, eventRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }

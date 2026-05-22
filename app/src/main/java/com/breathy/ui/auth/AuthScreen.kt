@@ -260,21 +260,7 @@ class AuthViewModel(
         }
     }
 
-    fun signInWithGoogle(idToken: String) {
-        _uiState.update { it.copy(isLoading = true, errorMessage = null) }
-
-        viewModelScope.launch {
-            val result = authRepository.signInWithGoogle(idToken)
-            _uiState.update { it.copy(isLoading = false) }
-
-            result
-                .onSuccess { user -> checkUserProfileAndNavigate(user.uid) }
-                .onFailure { e ->
-                    val message = mapAuthError(e)
-                    _uiState.update { it.copy(errorMessage = message) }
-                }
-        }
-    }
+    // Google Sign-In has been removed — email/password only
 
     fun sendPasswordReset() {
         val state = _uiState.value
@@ -459,23 +445,15 @@ class AuthViewModelFactory(
 // ═══════════════════════════════════════════════════════════════════════════════
 
 /**
- * Authentication screen supporting email/password sign-in & sign-up with
- * Google Sign-In option.
+ * Authentication screen supporting email/password sign-in & sign-up.
  *
  * @param onNavigateToHome       Callback invoked when a returning user signs in.
  * @param onNavigateToOnboarding Callback invoked when a new user signs up.
- * @param onGoogleSignInRequest  Callback invoked to trigger Google Sign-In
- *                               from the hosting Activity/Fragment. The Activity
- *                               should launch the Google Sign-In intent and pass
- *                               the resulting idToken to [AuthViewModel.signInWithGoogle].
  */
 @Composable
 fun AuthScreen(
     onNavigateToHome: () -> Unit,
     onNavigateToOnboarding: () -> Unit,
-    onGoogleSignInRequest: () -> Unit = {},
-    googleIdToken: String? = null,
-    onGoogleTokenConsumed: () -> Unit = {},
     viewModel: AuthViewModel = run {
         val context = LocalContext.current
         val appModule = (context.applicationContext as BreathyApplication).appModule
@@ -487,14 +465,6 @@ fun AuthScreen(
     val scope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
-
-    // ── Handle Google Sign-In token from Activity ────────────────────────────
-    LaunchedEffect(googleIdToken) {
-        if (googleIdToken != null) {
-            viewModel.signInWithGoogle(googleIdToken)
-            onGoogleTokenConsumed()
-        }
-    }
 
     // ── Navigation events ────────────────────────────────────────────────────
     LaunchedEffect(uiState.navigationEvent) {
@@ -675,18 +645,6 @@ fun AuthScreen(
                 isLoading = uiState.isLoading,
                 onClick = if (uiState.isSignUpMode) viewModel::signUp else viewModel::signIn,
                 contentDescription = if (uiState.isSignUpMode) "Sign up button" else "Sign in button"
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            OrDivider()
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // ── Google Sign-In button ─────────────────────────────────────
-            GoogleSignInButton(
-                onClick = onGoogleSignInRequest,
-                isLoading = uiState.isLoading
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -1000,90 +958,7 @@ private fun GradientButton(
     }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-//  "or" Divider
-// ═══════════════════════════════════════════════════════════════════════════════
 
-@Composable
-private fun OrDivider() {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
-    ) {
-        HorizontalDivider(
-            modifier = Modifier
-                .weight(1f)
-                .padding(end = 16.dp),
-            color = MaterialTheme.colorScheme.surfaceVariant,
-            thickness = 1.dp
-        )
-        Text(
-            text = "or",
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            fontSize = 13.sp
-        )
-        HorizontalDivider(
-            modifier = Modifier
-                .weight(1f)
-                .padding(start = 16.dp),
-            color = MaterialTheme.colorScheme.surfaceVariant,
-            thickness = 1.dp
-        )
-    }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
-//  Google Sign-In Button
-// ═══════════════════════════════════════════════════════════════════════════════
-
-@Composable
-private fun GoogleSignInButton(
-    onClick: () -> Unit,
-    isLoading: Boolean
-) {
-    OutlinedButton(
-        onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(54.dp),
-        enabled = !isLoading,
-        shape = RoundedCornerShape(14.dp),
-        border = ButtonDefaults.outlinedButtonBorder.copy(
-            brush = Brush.horizontalGradient(
-                colors = listOf(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.surfaceVariant)
-            )
-        ),
-        colors = ButtonDefaults.outlinedButtonColors(
-            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
-            disabledContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.3f)
-        )
-    ) {
-        // Google "G" letter as a simple text representation.
-        // Replace with R.drawable.ic_google once the vector asset is added.
-        if (isLoading) {
-            CircularProgressIndicator(
-                modifier = Modifier.size(20.dp),
-                color = AccentSecondary,
-                strokeWidth = 2.dp
-            )
-        } else {
-            Text(
-                text = "G",
-                color = AccentSecondary,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-        Spacer(modifier = Modifier.width(12.dp))
-        Text(
-            text = "Continue with Google",
-            color = MaterialTheme.colorScheme.onBackground,
-            fontSize = 15.sp,
-            fontWeight = FontWeight.Medium
-        )
-    }
-}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 //  Sign In / Sign Up Toggle

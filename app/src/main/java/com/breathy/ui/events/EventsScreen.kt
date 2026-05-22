@@ -153,6 +153,20 @@ class EventsViewModel(
 
     init {
         loadEvents()
+        seedPushupChallenge()
+    }
+
+    private fun seedPushupChallenge() {
+        viewModelScope.launch {
+            eventRepository.seedPushupChallenge().fold(
+                onSuccess = { Timber.d("Push-up challenge seeded or already exists") },
+                onFailure = { e ->
+                    if (e !is CancellationException) {
+                        Timber.e(e, "Failed to seed push-up challenge")
+                    }
+                }
+            )
+        }
     }
 
     fun loadEvents() {
