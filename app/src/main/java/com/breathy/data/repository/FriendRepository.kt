@@ -386,10 +386,20 @@ class FriendRepository(
     // ═══════════════════════════════════════════════════════════════════════════
 
     /**
-     * Get all friends of the current user as a list of [PublicProfile].
-     * Fetches friend profiles concurrently using async/await.
+     * Data class pairing a friend's public profile with the friendship document ID.
+     * Used by the UI layer to perform unfriend operations using the real doc ID.
      */
-    suspend fun getFriends(): Result<List<PublicProfile>> = runCatching {
+    data class FriendWithFriendshipId(
+        val profile: PublicProfile,
+        val friendshipId: String
+    )
+
+    /**
+     * Get all friends of the current user as a list of [FriendWithFriendshipId].
+     * Fetches friend profiles concurrently using async/await.
+     * Returns the real Firestore friendship document ID so unfriend works correctly.
+     */
+    suspend fun getFriendsWithIds(): Result<List<FriendWithFriendshipId>> = runCatching {
         withTimeoutOrNull(NETWORK_TIMEOUT_MS) {
             val friendships = try {
                 firestore.collection(FRIENDSHIPS_COLLECTION)
@@ -409,47 +419,60 @@ class FriendRepository(
                 }
             }
 
-            val friendIds = friendships.documents.mapNotNull { doc ->
+            // Build pairs of (friendUserId, friendshipDocId)
+            val friendPairs = friendships.documents.mapNotNull { doc ->
                 val userIds = doc.get("userIds") as? List<*>
-                userIds?.filterIsInstance<String>()?.firstOrNull { it != currentUserId }
+                val friendId = userIds?.filterIsInstance<String>()?.firstOrNull { it != currentUserId }
+                if (friendId != null) Pair(friendId, doc.id) else null
             }
 
             // Fetch profiles concurrently
-            val profiles = coroutineScope {
-                friendIds.map { id ->
+            val results = coroutineScope {
+                friendPairs.map { (friendId, friendshipDocId) ->
                     async {
                         try {
                             val profileDoc = try {
                                 firestore.collection(PUBLIC_PROFILES_COLLECTION)
-                                    .document(id)
+                                    .document(friendId)
                                     .get(Source.SERVER)
                                     .await()
                             } catch (e: Exception) {
-                                Timber.w(e, "Server read failed for profile %s — trying cache", id)
+                                Timber.w(e, "Server read failed for profile %s — trying cache", friendId)
                                 try {
                                     firestore.collection(PUBLIC_PROFILES_COLLECTION)
-                                        .document(id)
+                                        .document(friendId)
                                         .get(Source.CACHE)
                                         .await()
                                 } catch (cacheEx: Exception) {
-                                    Timber.w(cacheEx, "Cache read also failed for profile %s", id)
+                                    Timber.w(cacheEx, "Cache read also failed for profile %s", friendId)
                                     throw e
                                 }
                             }
                             if (profileDoc.exists()) {
-                                PublicProfile.fromFirestoreMap(id, profileDoc.data ?: emptyMap())
+                                FriendWithFriendshipId(
+                                    profile = PublicProfile.fromFirestoreMap(friendId, profileDoc.data ?: emptyMap()),
+                                    friendshipId = friendshipDocId
+                                )
                             } else null
                         } catch (e: Exception) {
-                            Timber.e(e, "Failed to fetch friend profile: %s", id)
+                            Timber.e(e, "Failed to fetch friend profile: %s", friendId)
                             null
                         }
                     }
                 }.awaitAll().filterNotNull()
             }
-            profiles.sortedBy { it.nickname }
+            results.sortedBy { it.profile.nickname }
         } ?: throw IllegalStateException("Get friends timed out after 30 seconds")
     }.onFailure { e ->
         if (e !is CancellationException) Timber.e(e, "Failed to get friends list")
+    }
+
+    /**
+     * Get all friends of the current user as a list of [PublicProfile].
+     * Fetches friend profiles concurrently using async/await.
+     */
+    suspend fun getFriends(): Result<List<PublicProfile>> {
+        return getFriendsWithIds().map { list -> list.map { it.profile } }
     }
 
     /**

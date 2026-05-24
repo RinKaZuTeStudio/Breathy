@@ -853,13 +853,20 @@ class SubscriptionViewModel(
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 productDetails = productDetailsList.firstOrNull()
                 productDetails?.let { details ->
-                    val offerToken = "" // Not needed for one-time purchases in Billing 6.x
-                    val priceAmount = try { details.oneTimePurchaseOfferDetails?.priceAmountMicros ?: 0 } catch (_: Exception) { 0 }
+                    val priceAmountMicros = try { details.oneTimePurchaseOfferDetails?.priceAmountMicros ?: 0 } catch (_: Exception) { 0 }
                     val priceCurrency = try { details.oneTimePurchaseOfferDetails?.priceCurrencyCode ?: "USD" } catch (_: Exception) { "USD" }
-                    val formattedPrice = try { details.oneTimePurchaseOfferDetails?.formattedPrice ?: "$1.00" } catch (_: Exception) { "$1.00" }
 
-                    _uiState.update { it.copy(priceText = formattedPrice) }
-                    Timber.i("Product details loaded: $formattedPrice $priceCurrency")
+                    // Always display price in USD dollars format
+                    val priceInDollars = if (priceAmountMicros > 0) {
+                        // Convert micros to dollars (1 dollar = 1,000,000 micros)
+                        val dollars = priceAmountMicros / 1_000_000.0
+                        "$${String.format("%.2f", dollars)}"
+                    } else {
+                        "$1.00"
+                    }
+
+                    _uiState.update { it.copy(priceText = priceInDollars) }
+                    Timber.i("Product details loaded: $priceInDollars (original currency: $priceCurrency)")
                 }
             } else {
                 Timber.e("Failed to query product details: ${billingResult.debugMessage}")

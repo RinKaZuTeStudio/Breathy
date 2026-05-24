@@ -7,7 +7,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.auth.GoogleAuthProvider
+// GoogleAuthProvider removed — Google Sign-In disabled
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Source
@@ -187,68 +187,7 @@ class AuthRepository(
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════════════
-    //  Google sign-in
-    // ═══════════════════════════════════════════════════════════════════════════
-
-    /**
-     * Sign in (or link) with a Google ID token obtained from [GoogleSignInClient].
-     * If this is a new user, a Firestore user document is created automatically.
-     */
-    suspend fun signInWithGoogle(idToken: String): Result<FirebaseUser> {
-        return try {
-            val user = withTimeoutOrNull(NETWORK_TIMEOUT_MS) {
-                val credential = GoogleAuthProvider.getCredential(idToken, null)
-                val result = auth.signInWithCredential(credential).await()
-                val firebaseUser = result.user
-                    ?: throw IllegalStateException("Google sign-in failed: user is null")
-
-                // If this is a new user, create a sparse Firestore document (best-effort)
-                // NOTE: We intentionally do NOT write quitDate/quitType here.
-                // The onboarding screen will add those fields when the user
-                // completes setup. See signUpWithEmail() for same pattern.
-                if (result.additionalUserInfo?.isNewUser == true) {
-                    try {
-                        // Sparse map WITHOUT quitDate/quitType
-                        val sparseMap = mutableMapOf<String, Any?>(
-                            "email" to (firebaseUser.email ?: ""),
-                            "nickname" to (firebaseUser.displayName ?: ""),
-                            "photoURL" to (firebaseUser.photoUrl?.toString()),
-                            "createdAt" to com.google.firebase.Timestamp.now(),
-                            "xp" to 0,
-                            "coins" to 0
-                        )
-                        firestore.collection(USERS_COLLECTION)
-                            .document(firebaseUser.uid)
-                            .set(sparseMap)
-                            .await()
-
-                        val publicProfile = mapOf(
-                            "nickname" to (firebaseUser.displayName ?: ""),
-                            "photoURL" to (firebaseUser.photoUrl?.toString()),
-                            "daysSmokeFree" to 0,
-                            "xp" to 0
-                        )
-                        firestore.collection(PUBLIC_PROFILES_COLLECTION)
-                            .document(firebaseUser.uid)
-                            .set(publicProfile)
-                            .await()
-                    } catch (e: Exception) {
-                        // Firestore write failed (e.g. rules not deployed yet).
-                        // Auth account was created — don't block sign-in.
-                        Timber.w(e, "Firestore write failed during Google sign-in — continuing")
-                    }
-                }
-                firebaseUser
-            } ?: throw IllegalStateException("Google sign-in timed out after 30 seconds")
-            Result.success(user)
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            Timber.e(e, "Google sign-in failed")
-            Result.failure(e.userFriendlyMessage("Google sign-in failed"))
-        }
-    }
+    // Google Sign-In has been removed — email/password authentication only
 
     // ═══════════════════════════════════════════════════════════════════════════
     //  Password reset

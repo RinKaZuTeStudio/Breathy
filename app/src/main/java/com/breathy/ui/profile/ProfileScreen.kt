@@ -146,7 +146,6 @@ fun ProfileScreen(
     val context = LocalContext.current
 
     // Dialog states
-    var showDeleteDialog by remember { mutableStateOf(false) }
     var showEditNicknameDialog by remember { mutableStateOf(false) }
     var showEditQuitDateDialog by remember { mutableStateOf(false) }
     var showEditAgeDialog by remember { mutableStateOf(false) }
@@ -283,8 +282,7 @@ fun ProfileScreen(
                 // ── Action Buttons ──────────────────────────────────────────
                 AnimatedVisibility(visible = sectionsVisible) {
                     ActionButtonsSection(
-                        onSignOut = onSignOut,
-                        onDeleteAccount = { showDeleteDialog = true }
+                        onSignOut = onSignOut
                     )
                 }
 
@@ -308,49 +306,6 @@ fun ProfileScreen(
                 }
             }
         }
-    }
-
-    // ── Delete Account Confirmation Dialog ────────────────────────────────
-    if (showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
-            title = {
-                Text(
-                    text = "Delete Account?",
-                    color = MaterialTheme.colorScheme.error,
-                    fontWeight = FontWeight.Bold
-                )
-            },
-            text = {
-                Text(
-                    text = "This action is permanent and cannot be undone. All your data, progress, " +
-                            "achievements, and stats will be permanently deleted.",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showDeleteDialog = false
-                        scope.launch { viewModel.deleteAccount() }
-                    }
-                ) {
-                    Text(
-                        text = "Delete",
-                        color = MaterialTheme.colorScheme.error,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) {
-                    Text(text = "Cancel", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            },
-            containerColor = MaterialTheme.colorScheme.surface,
-            titleContentColor = MaterialTheme.colorScheme.error,
-            textContentColor = MaterialTheme.colorScheme.onSurfaceVariant
-        )
     }
 
     // ── Edit Nickname Dialog ──────────────────────────────────────────────
@@ -1363,8 +1318,7 @@ private fun SubscriptionStatusSection(
 
 @Composable
 private fun ActionButtonsSection(
-    onSignOut: () -> Unit,
-    onDeleteAccount: () -> Unit
+    onSignOut: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -1396,38 +1350,6 @@ private fun ActionButtonsSection(
                     text = "Sign Out",
                     style = MaterialTheme.typography.bodyMedium.copy(
                         color = AccentWarning,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                )
-            }
-        }
-
-        // Delete account
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-            shape = RoundedCornerShape(12.dp),
-            onClick = onDeleteAccount
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete account",
-                    tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Delete Account",
-                    style = MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.error,
                         fontWeight = FontWeight.SemiBold
                     )
                 )

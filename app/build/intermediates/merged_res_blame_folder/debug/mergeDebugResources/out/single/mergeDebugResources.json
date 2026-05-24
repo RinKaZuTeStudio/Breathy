@@ -1,0 +1,62 @@
+[
+    {
+        "merged": "com.breathy.app-debug-97:/color_nav_item_color.xml.flat",
+        "source": "com.breathy.app-main-99:/color/nav_item_color.xml"
+    },
+    {
+        "merged": "com.breathy.app-debug-97:/mipmap-xhdpi_ic_launcher.png.flat",
+        "source": "com.breathy.app-main-99:/mipmap-xhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.breathy.app-debug-97:/mipmap-hdpi_ic_launcher_round.png.flat",
+        "source": "com.breathy.app-main-99:/mipmap-hdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.breathy.app-debug-97:/mipmap-xhdpi_ic_launcher_round.png.flat",
+        "source": "com.breathy.app-main-99:/mipmap-xhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.breathy.app-debug-97:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.breathy.app-main-99:/drawable/ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "com.breathy.app-debug-97:/mipmap-xxxhdpi_ic_launcher_round.png.flat",
+        "source": "com.breathy.app-main-99:/mipmap-xxxhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.breathy.app-debug-97:/mipmap-mdpi_ic_launcher.png.flat",
+        "source": "com.breathy.app-main-99:/mipmap-mdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.breathy.app-debug-97:/drawable_ic_launcher_background.xml.flat",
+        "source": "com.breathy.app-main-99:/drawable/ic_launcher_background.xml"
+    },
+    {
+        "merged": "com.breathy.app-debug-97:/xml_gma_ad_services_config.xml.flat",
+        "source": "com.breathy.app-main-99:/xml/gma_ad_services_config.xml"
+    },
+    {
+        "merged": "com.breathy.app-debug-97:/mipmap-xxhdpi_ic_launcher_round.png.flat",
+        "source": "com.breathy.app-main-99:/mipmap-xxhdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.breathy.app-debug-97:/mipmap-xxxhdpi_ic_launcher.png.flat",
+        "source": "com.breathy.app-main-99:/mipmap-xxxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.breathy.app-debug-97:/drawable_ic_notification.xml.flat",
+        "source": "com.breathy.app-main-99:/drawable/ic_notification.xml"
+    },
+    {
+        "merged": "com.breathy.app-debug-97:/mipmap-xxhdpi_ic_launcher.png.flat",
+        "source": "com.breathy.app-main-99:/mipmap-xxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.breathy.app-debug-97:/mipmap-mdpi_ic_launcher_round.png.flat",
+        "source": "com.breathy.app-main-99:/mipmap-mdpi/ic_launcher_round.png"
+    },
+    {
+        "merged": "com.breathy.app-debug-97:/mipmap-hdpi_ic_launcher.png.flat",
+        "source": "com.breathy.app-main-99:/mipmap-hdpi/ic_launcher.png"
+    }
+]

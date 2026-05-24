@@ -188,21 +188,14 @@ class FriendsViewModel(
 
     private fun loadFriendsWithIds() {
         viewModelScope.launch {
-            // Get friendships to get IDs
-            val uid = currentUserId
-            val friendsResult = friendRepository.getFriends()
-            friendsResult.onSuccess { profiles ->
-                // We need to reconstruct userIds from friendships.
-                // The repository doesn't expose friendship document IDs,
-                // so we use a Firestore query directly via the repository's
-                // observeFriends flow. For the UI we create FriendWithProfile
-                // by searching publicProfiles for each profile's nickname.
-                // This is a workaround for the data model limitation.
-                val friendsWithProfiles = profiles.mapIndexed { index, profile ->
+            // Get friendships with real document IDs from Firestore
+            val friendsResult = friendRepository.getFriendsWithIds()
+            friendsResult.onSuccess { friendsWithIds ->
+                val friendsWithProfiles = friendsWithIds.map { friendWithId ->
                     FriendWithProfile(
-                        userId = profile.userId,
-                        friendshipId = "friendship_$index",
-                        profile = profile
+                        userId = friendWithId.profile.userId,
+                        friendshipId = friendWithId.friendshipId,
+                        profile = friendWithId.profile
                     )
                 }
                 _uiState.update {
